@@ -43,19 +43,18 @@ In the case of the servor motor, because it has a diffrent shape than the DC mot
 
 ## Electrical components
 
-  As for the electrical components, we've used a servo motor (MG996R) for steering and a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). As we metioned before we used 3D printed parts, designed by us, to connect the motors to the the contruction made of lego pieces. 
+As for the electrical components, we've used a servo motor (MG996R) for steering and a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). As we metioned before we used 3D printed parts, designed by us, to connect the motors to the the contruction made of lego pieces. 
 ### Servo motor
 ![MG996R Servo](./images/MG996R.webp "MG996R Servo")
 
 ### Drive motor
 ![Geared DC Motor w/Encoder](./images/drive_motor.jpg "Geared DC Motor w/Encoder")
 
-
-  To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
+To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
 ### Motor Driver
 ![Geared DC Motor w/Encoder](./images/motor_driver.jpg "Geared DC Motor w/Encoder")
 
-## Power and Sense Management
+# Power and Sense Management
 
 Last year we've made a robot that used Raspberry Pi, but also Arduino.After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
@@ -66,21 +65,468 @@ Why did we choose this board, you may ask. Well, we wanted to have as more speci
 
 So this year our work was much easier, because we didn't have problems, such as trying to connect the Raspberry Pi to the Arduino board, which made our sensors reading slower (we had to send the readings to the Raspberry Pi and make the Arduino wait for the Raspberry to procces it). Now we could procces the readings of the sensors on the same board, which made our data more accurate.
 
-Regarding the distance sensor, it is a long story. At first, after the international we've thought that using a lidar (vl53l0x) sensor for mesuring distances was a great idea, but it turned out that it wasn't so great. There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+Regarding the distance sensor, it is a long story. At first, after the international we've thought that using a lidar (VL53L0X) sensor for mesuring distances was a great idea, but it turned out that it wasn't so great. There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+
 ### Lidar sensor
-![Lidar sensor](./images/s75-0987p01wj.jpg " Lidar sensor")
+![Lidar sensor VL53L0X)](./images/VL53L0X.png "Lidar sensor VL53L0X)")
 
 After we've realised we need to find another solution, we've decided to go back to our long friends: the ultrasonic sensors. And we can say that this year they are more reliable. They are giving us more accurate reading, because we've incressed the frequency that we are reading with and we are processinng the data much faste. The model that we are using is
-grove ultrasonic distance sensor. We have one on each side (right and left) and one in the front of the robot.
+grove ultrasonic distance sensor (HC-SR04). We have one on each side (right and left) and one in the front of the robot.
 
-### Ultrasonic sensor
-![Ultrasonic sensor](./images/seeed-grove-ultrasonic-distance-sensor.webp " Ultrasonic sensor")
+### Ultrasonic sensor (HC-SR04)
+![Ultrasonic sensor (HC-SR04)](./images/ultrasonic.png "Ultrasonic sensor (HC-SR04)")
 
 Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensor we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones.
 
-### Gyro sensor
-![Gyro sensor](./images/gyro.jpg "Gyro sensor")
+### Gyro sensor (BMI088)
+![Gyro sensor (BMI088)](./images/gyro.jpg "Gyro sensor (BMI088)")
+
+As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
+
+### Li-Po Battery
+![Li-Po Battery](./images/battery.png "Li-Po Battery")
+
+One of our biggest drawbacks last year was the speed of the camera readings. We were using a Raspberry Pi with the PiCam V2. Mainly because we had to do the cube recognition machine learning algorithm and procces it on the Raspberry Pi, the fps of the proccesed images was pretty low, about 15. This also cost the other readings on the Raspberry Pi to slow down.
+
+Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
+
+### Pixy cam 2.1
+![Pixy cam 2.1](./images/pixy.jpg "Pixy cam 2.1")
+
+In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
+
+Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
+
+### Voltage regulator (L7805CV)
+![Voltage regulator (L7805CV)](./images/voltage_regulator.jpeg "Voltage regulator (L7805CV)")
+
+### Circuit diagram
+![Circuit diagram](./images/circuit.png "Circuit diagram")
+
+## Obstacle Management
+
+  Now that we had all the components that we were gonna use, the next step was to test them and make specific functions for each of them.
+
+  
+So we started with the motors. We didn't need to include a specific library to control it, beacause the board Teensy is made to control it without using any library. 
+
+First, we need to define the pins we need.
+
+```ino
+// Motor driver
+#define PWM1 7
+#define AIN1 9
+#define AIN2 8
+```
+After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-1)_ in _motor_stop_, before setting the current motor speed to 0, in order to stop the robot moving.
 
 
+```ino
+void motor_start(int speed) {
+  current_motor_speed = speed;
+  
+  int out = abs(speed) * 2.55; // Convert speed to PWM value (0 to 255)
+  if(speed >= 0) { // Forward direction
+    digitalWrite(AIN1, HIGH);
+    digitalWrite(AIN2, LOW);
+  }
+  else { // Reverse direction
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, HIGH);
+  }
+  analogWrite(PWM1, out);
+}
+
+void motor_stop() {
+  motor_start(-1); 
+  current_motor_speed = 0;
+}
+```
+ If for the motor we didn't import a labrary for it, for the encoder we had to. The library we are using this year is named _Encoder.h_. 
+ 
+ ```ino
+#include <Encoder.h>
+```
+ 
+ As we had earlier, the first step is to define the pins we are going to use for the component.
+
+ ```ino
+// Motor Encoder
+#define ENCODER_PIN1 5
+#define ENCODER_PIN2 4
+ ```
+Compared to the motor, we need to initialize the encoder.
+
+```ino
+// Motor encoder
+Encoder myEnc(ENCODER_PIN1, ENCODER_PIN2);
+```
+
+The ecoder has only one function, and lucky for us is quite easy to understand it and code it. The constan, with which we are deviding the value the encoder returns us, was calculated by testing of diffrent lengths, so we are transforming the reading of the ecoder in cm.
+
+```ino
+long read_motor_encoder() {
+  return (double)myEnc.read() / 47.74;
+}
+```
+
+The last component we needed to program in order for the robot to move and steer is the servo motor. The library we used is _Servo.h_.
+
+```ino
+#include <Servo.h> 
+```
+
+At the begging we defined the pins we are using.
+
+```ino
+// Servo 
+#define SERVO_PIN 6
+#define SERVO_ANGLE_CORECTION 5
+```
+
+Than we initialized the servo.
+
+```ino
+// Servo
+Servo servo;
+```
+
+And the last step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to calculate the value we are going to give the motor to roatate to.
+
+```ino
+/// Servo functions
+
+void move_servo(double angle) {
+  angle = -clamp(angle, -1, 1);
+
+  double angle_deg = 90 + angle * 90.0 + servo_corrections; // Convert angle to degrees (0 to 180)
+  angle_deg = clamp(angle_deg, 0, 180);
+  servo.write(angle_deg);
+}
+```
+
+So, now that we finished to implement the functions we need to make the robot move andd steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
+
+```ino 
+#include <Pixy2I2C.h>
+```
+
+As you see the first step, is to define the pins.
+
+```ino
+// Servo 
+#define SERVO_PIN 6
+#define SERVO_ANGLE_CORECTION 5
+```
+And after we've defined the pins, we need to initialize the camera.
+
+```ino
+// Camera
+Pixy2I2C pixy;
+```
+
+For the camera we made a function in which we determine if we have a cube we need to avoid, and its color. As you can see, in order to take in considertion a cube, the aria of the cube we are seeing need to be greater or equal to 250.
+
+```ino
+// pixy.ccc.blocks[i].m_signature The signature number of the detected object (1 is for red, and 2 is for green)
+// pixy.ccc.blocks[i].m_x The x location of the center of the detected object (0 to 316)
+// pixy.ccc.blocks[i].m_y The y location of the center of the detected object (0 to 208)
+// pixy.ccc.blocks[i].m_width The width of the detected object (1 to 316)
+// pixy.ccc.blocks[i].m_height The height of the detected object (1 to 208)
+// pixy.ccc.blocks[i].m_index The tracking index of the block
+
+void signature_to_cube_color(double current_angle, int current_side) {
+  cube_color = 0;
+
+  if(pixy.ccc.numBlocks >= 1) {
+    cub_index = pixy.ccc.blocks[0].m_index;
+    if(current_side == 0) {
+      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > 250) {
+        if(pixy.ccc.blocks[0].m_x > 40 && pixy.ccc.blocks[0].m_x < 240) {
+          if(pixy.ccc.blocks[0].m_signature == 1)
+            cube_color = 1;
+          else if(pixy.ccc.blocks[0].m_signature == 2)
+            cube_color = -1;
+        } 
+      }
+    } else if(current_side == -1) {
+      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > min_area_cube) {
+        if(pixy.ccc.blocks[0].m_x > 80) {
+          if(pixy.ccc.blocks[0].m_signature == 1)
+            cube_color = 1;
+          else if(pixy.ccc.blocks[0].m_signature == 2)
+            cube_color = -1;
+        }
+      }
+    } else if(current_side == 1) {
+      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > min_area_cube) {
+        if(pixy.ccc.blocks[0].m_x < 80) {
+          if(pixy.ccc.blocks[0].m_signature == 1)
+            cube_color = 1;
+          else if(pixy.ccc.blocks[0].m_signature == 2)
+            cube_color = -1;
+        }
+      }
+    }
+
+    if(cube_color == 0) {
+      if(pixy.ccc.blocks[0].m_signature == 1)
+        cube_corner_color = 1;
+      else if(pixy.ccc.blocks[0].m_signature == 2)
+        cube_corner_color = -1;
+
+      cube_corner_side = current_side;
+    }
+    else 
+      cube_corner_color = 0;
+      cube_corner_side = 0;
+  }
+}
+```
+
+For mesuring distances, as we said ealier, we are using ultrasound sensors. For them we used the library _Ultrasonic.h_.
+
+```ino
+#include "Ultrasonic.h"
+```
+
+For each sensor we defined one pin.
+
+```ino
+#define FRONT_SENSOR_PIN 2
+#define LEFT_SENSOR_PIN 1
+#define RIGHT_SENSOR_PIN 0
+```
+
+And after that we initilized them, like below.
+
+```ino
+// Distance sensors
+Ultrasonic ultrasonic_front(FRONT_SENSOR_PIN);
+Ultrasonic ultrasonic_left(LEFT_SENSOR_PIN);
+Ultrasonic ultrasonic_right(RIGHT_SENSOR_PIN);
+```
+
+We don't have a specific function which returns us the distance. However we are reading with them in the loop, by calling the function named _allSensors_, in which we are ggetting data 
+for other sensors too (such as gyro and encorder).
+
+```ino
+#ifdef USE_DISTANCE_SENSORS
+  if(millis() - last_time_front_sensor >= 50) {
+    front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
+    last_time_front_sensor = millis();
+  } 
+  
+  if(millis() - last_time_left_sensor >= 50) {
+    left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
+    last_time_left_sensor = millis();
+  } 
+  
+  if(millis() - last_time_right_sensor >= 50) {
+    right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
+    last_time_right_sensor = millis();
+  } 
+
+  if(debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: " 
+         << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
+  #endif // USE_DISTANCE_SENSORS
+
+```
+
+To make the robot move in a straight line we are using the gyro. The library we are using for it is _"BMI088.h"_.
+
+```ino
+#include "BMI088.h"
+```
+
+We defined 2 constants: one for the numbers of samples we are using to detemine the angle we are at, and the other one is the period of time i which we are calculating the drift of the gyro, so we know how much we need to compesate for it.
+
+```ino
+#define GYRO_SAMPLE_SIZE 1
+#define DRIFT_TEST_TIME 10
+```
+
+We had to initilized it first.
+
+```ino
+// Gyro sensor
+Bmi088 bmi(Wire, 0x19, 0x69);
+```
+In the setup we calculate the value we need to add so the gyro doesn't have a such a big drift anymore.
+
+```ino
+#ifdef USE_GYRO
+  int status = bmi.begin();
+  bmi.setOdr(Bmi088::ODR_400HZ);
+  bmi.setRange(Bmi088::ACCEL_RANGE_6G,Bmi088::GYRO_RANGE_500DPS);
+  if(status < 0) {
+    if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
+    init_error = init_gyro_error = true;
+  }
+  else  {
+    // Gyro drift calculation
+    if(debug) Serial.println("Starting gyro drift calculation...");
+
+    gx = 0;
+    gy = 0;
+    gz = 0;
+
+    gyro_last_read_time = millis();
+
+    double start_time = millis();
+    while(millis() - start_time < DRIFT_TEST_TIME * 1000) {
+      bmi.readSensor();
+      double read_time = millis();
+
+      gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
+      gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
+      gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
+
+      gyro_last_read_time = read_time;
+    }
+
+    drifts_x = gx / DRIFT_TEST_TIME;
+    drifts_y = gy / DRIFT_TEST_TIME;
+    drifts_z = gz / DRIFT_TEST_TIME;
+
+    if(debug) Serial.print("Drift test done!\nx: ");
+    if(debug) Serial.print(drifts_x, 6);
+    if(debug) Serial.print("   y: ");
+    if(debug) Serial.print(drifts_y, 6);
+    if(debug) Serial.print("   z: ");
+    if(debug) Serial.println(drifts_z, 6);
+  }
+  // Gyro value reset
+  gx = 0;
+  gy = 0;
+  gz = 0;
+
+  gyro_last_read_time = millis();
+  #endif // USE_GYRO
+
+```
+
+Like the ultrasonic sensors, we don't have a specific function made by us for getting data for the gyro. Still we are reading data with it in the loop, by calling the function _allSensors_.
+
+```ino
+/// Gyro
+  #ifdef USE_GYRO
+  bmi.readSensor();
+  double read_time = millis();
+
+  gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+  gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+  gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+
+  gyro_last_read_time = read_time;
+
+  if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
+  #endif // USE_GYRO
+
+  
+  /// Led blink
+  #ifdef USE_LED
+  if(millis() - led_previous_time >= led_interval) {
+    led_previous_time = millis();
+
+    if (led_state == LOW) {
+      led_state = HIGH;
+    } else {
+      led_state = LOW;
+    }
+
+    digitalWrite(LED_PIN, led_state);
+  }
+  #endif // USE_LED
+```
+
+Because we are using Teensy 4.1, which is a board similar to arduino, we can't see the data the robot is reading in real time, but still need to know what the robot is reading. So we found a solution, which is quite simple. We can storage everything the robot is reading on a SD Card, because the Teensy has a port for SD Cards, which is perfect in this situation. The libraries we used for this is _SD.h_ and _SPI.h_.
+
+```ino
+#include <SD.h>
+#include <SPI.h>
+```
+
+To use the SD Card we defined the pin we are using.
+
+```ino
+// SD Card
+#define chipSelect BUILTIN_SDCARD
+```
+For writing data in a file on the SD Card we made two functions. The function named _file_print_ is writig the date without enters in the file. Meanwhile, the function _file_println_ is writing the data with a enter after the string in the file. Both of them have a parameter of type _String_, names _s_, which is the data that we are writing in the file. 
+
+```ino
+/// SD card
+void file_print(String s) {
+  File data_file = SD.open(sd_filename, FILE_WRITE);
+  if(data_file) {
+    data_file.print(s);
+    data_file.close();
+  }
+}
+
+void file_println(String s) {
+  File data_file = SD.open(sd_filename, FILE_WRITE);
+  if(data_file) {
+    data_file.println(s);
+    data_file.close();
+  }
+}
+```
+
+Even though, we are storing the data on the SD Card, we also have a display, so we can check in real time what the sensors and the camera are reading.
+
+First we initialized the display.
+
+```ino
+// Display
+U8G2_SSD1306_128X64_ALT0_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+```
+To write on the display we made four funtions. As you can see all of the four functions have the same name, because the parameters we are sending to the functions are of diffrent types, which is called function overloading and a .ino feature used to to improve the readability of the code.
+
+```ino
+/// Display functions
+
+void display_print(const char *s) {
+  #ifdef USE_DISPLAY
+  u8g2.clearBuffer();
+  u8g2.drawStr(30, 20, s);
+  u8g2.sendBuffer();
+  #endif // USE_DISPLAY
+}
+
+void display_print(const char *s1, const char *s2) {
+  #ifdef USE_DISPLAY
+  u8g2.clearBuffer();
+  u8g2.drawStr(30, 15, s1);
+  u8g2.drawStr(30, 25, s2);
+  u8g2.sendBuffer();
+  #endif // USE_DISPLAY
+}
+
+void display_print(const double n, const char *sufix = "") {
+  #ifdef USE_DISPLAY
+  char s[100];
+  itoa(n, s, 10);
+  strcat(s, sufix);
+
+  u8g2.clearBuffer();
+  u8g2.drawStr(30, 20, s);
+  u8g2.sendBuffer();
+  #endif // USE_DISPLAY
+}
 
 
+void display_print(const double a, const double b) {
+  #ifdef USE_DISPLAY
+  char s1[100], s2[100];
+  itoa(a, s1, 10);
+  itoa(b, s2, 10);
+
+  u8g2.clearBuffer();
+  u8g2.drawStr(30, 15, s1);
+  u8g2.drawStr(30, 25, s2);
+  u8g2.sendBuffer();
+  #endif // USE_DISPLAY
+}
+```
