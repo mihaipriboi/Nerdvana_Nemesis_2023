@@ -59,7 +59,7 @@ To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG
 Last year we've made a robot that used Raspberry Pi, but also Arduino.After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
 ### Teensy 4.1
-![Teensy 4.1](./images/4622-06.jpg " Teensy 4.1")
+![Teensy 4.1](./images/teensy.jpg " Teensy 4.1")
 
 Why did we choose this board, you may ask. Well, we wanted to have as more special pins (example IC2 and interrupt pins) and is much faster in comparison to the arduino, the teensy having a 600 MHz frequency and a flash memory of 8 Mbytes, while an Arduino Every (this arduino board we've used last year) has a 20MHz freqency and a flash memory of 48 KB.
 
@@ -91,24 +91,27 @@ One of our biggest drawbacks last year was the speed of the camera readings. We 
 Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
 
 ### Pixy cam 2.1
-![Pixy cam 2.1](./images/pixy.jpg "Pixy cam 2.1")
+![Pixy cam 2.1](./images/pixy.png "Pixy cam 2.1")
 
 In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
 
 Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
 
 ### Voltage regulator (L7805CV)
-![Voltage regulator (L7805CV)](./images/voltage_regulator.jpeg "Voltage regulator (L7805CV)")
+![Voltage regulator (L7805CV)](./images/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
 ### Circuit diagram
 ![Circuit diagram](./images/circuit.png "Circuit diagram")
 
-## Obstacle Management
+<br>
 
-  Now that we had all the components that we were gonna use, the next step was to test them and make specific functions for each of them.
+# Obstacle Management
 
-  
-So we started with the motors. We didn't need to include a specific library to control it, beacause the board Teensy is made to control it without using any library. 
+Now that we had all the components that we were gonna use, the next step was to test them and make specific functions for each of them.
+
+## Drive Motor
+
+So we started with the motors. We didn't need to include a specific library to control the motor driver, beacause arduino (and Teensy) have inbuilt functions for this. 
 
 First, we need to define the pins we need.
 
@@ -118,8 +121,8 @@ First, we need to define the pins we need.
 #define AIN1 9
 #define AIN2 8
 ```
-After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-1)_ in _motor_stop_, before setting the current motor speed to 0, in order to stop the robot moving.
 
+After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-1)_ in _motor_stop_, before setting the current motor speed to 0, in order to stop the robot moving.
 
 ```ino
 void motor_start(int speed) {
@@ -142,19 +145,21 @@ void motor_stop() {
   current_motor_speed = 0;
 }
 ```
- If for the motor we didn't import a labrary for it, for the encoder we had to. The library we are using this year is named _Encoder.h_. 
- 
- ```ino
+
+If for the motor we didn't import a labrary for it, for the encoder we had to. The library we are using this year is named _Encoder.h_. 
+
+```ino
 #include <Encoder.h>
 ```
  
- As we had earlier, the first step is to define the pins we are going to use for the component.
+As we had earlier, the first step is to define the pins we are going to use for the component.
 
- ```ino
+```ino
 // Motor Encoder
 #define ENCODER_PIN1 5
 #define ENCODER_PIN2 4
  ```
+
 Compared to the motor, we need to initialize the encoder.
 
 ```ino
@@ -170,13 +175,15 @@ long read_motor_encoder() {
 }
 ```
 
+## Servo Motor
+
 The last component we needed to program in order for the robot to move and steer is the servo motor. The library we used is _Servo.h_.
 
 ```ino
 #include <Servo.h> 
 ```
 
-At the begging we defined the pins we are using.
+The first step is to define the pin, and we also observed that we could't quite center the wheels on the 0 position of the servo, so we defined a servo corection angle to combat this.
 
 ```ino
 // Servo 
@@ -184,14 +191,14 @@ At the begging we defined the pins we are using.
 #define SERVO_ANGLE_CORECTION 5
 ```
 
-Than we initialized the servo.
+Then, we initialized the servo.
 
 ```ino
 // Servo
 Servo servo;
 ```
 
-And the last step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to calculate the value we are going to give the motor to roatate to.
+And the last step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
 
 ```ino
 /// Servo functions
@@ -205,36 +212,42 @@ void move_servo(double angle) {
 }
 ```
 
-So, now that we finished to implement the functions we need to make the robot move andd steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
+## Camera
+
+Now that we finished to implement the functions we need to make the robot move andd steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
 
 ```ino 
 #include <Pixy2I2C.h>
 ```
 
-As you see the first step, is to define the pins.
-
-```ino
-// Servo 
-#define SERVO_PIN 6
-#define SERVO_ANGLE_CORECTION 5
-```
-And after we've defined the pins, we need to initialize the camera.
+We need to initialize the camera. There are no pins, as we have a I2C connection. The I2C address must be configured in the _Pixy2I2C.h_ library.
 
 ```ino
 // Camera
 Pixy2I2C pixy;
 ```
 
-For the camera we made a function in which we determine if we have a cube we need to avoid, and its color. As you can see, in order to take in considertion a cube, the aria of the cube we are seeing need to be greater or equal to 250.
+In order to read the inputs from the camera, we have some methods from the Pixy2I2C class.
 
 ```ino
-// pixy.ccc.blocks[i].m_signature The signature number of the detected object (1 is for red, and 2 is for green)
-// pixy.ccc.blocks[i].m_x The x location of the center of the detected object (0 to 316)
-// pixy.ccc.blocks[i].m_y The y location of the center of the detected object (0 to 208)
-// pixy.ccc.blocks[i].m_width The width of the detected object (1 to 316)
-// pixy.ccc.blocks[i].m_height The height of the detected object (1 to 208)
-// pixy.ccc.blocks[i].m_index The tracking index of the block
+pixy.ccc.blocks[i].m_signature
+// The signature number of the detected object
+// For us, 1 is for red, and 2 is for green
+pixy.ccc.blocks[i].m_x
+// The x location of the center of the detected object (0 to 316)
+pixy.ccc.blocks[i].m_y
+// The y location of the center of the detected object (0 to 208)
+pixy.ccc.blocks[i].m_width
+// The width of the detected object (1 to 316)
+pixy.ccc.blocks[i].m_height
+// The height of the detected object (1 to 208)
+pixy.ccc.blocks[i].m_indez
+// The tracking index of the block
+```
 
+For the camera we made a function in which we determine if we have a cube we need to avoid, and its color. In order to take a cube in considertion, the area needs to be greater or equal to a constant we determine experimentally.
+
+```ino
 void signature_to_cube_color(double current_angle, int current_side) {
   cube_color = 0;
 
@@ -284,6 +297,8 @@ void signature_to_cube_color(double current_angle, int current_side) {
 }
 ```
 
+## Ultrasonic Sensors
+
 For mesuring distances, as we said ealier, we are using ultrasound sensors. For them we used the library _Ultrasonic.h_.
 
 ```ino
@@ -307,140 +322,125 @@ Ultrasonic ultrasonic_left(LEFT_SENSOR_PIN);
 Ultrasonic ultrasonic_right(RIGHT_SENSOR_PIN);
 ```
 
-We don't have a specific function which returns us the distance. However we are reading with them in the loop, by calling the function named _allSensors_, in which we are ggetting data 
-for other sensors too (such as gyro and encorder).
+We are reading the sensor data in the _void loop_, with a delay of 50ms between readings (for each sensor separately).
 
 ```ino
 #ifdef USE_DISTANCE_SENSORS
-  if(millis() - last_time_front_sensor >= 50) {
-    front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
-    last_time_front_sensor = millis();
-  } 
-  
-  if(millis() - last_time_left_sensor >= 50) {
-    left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
-    last_time_left_sensor = millis();
-  } 
-  
-  if(millis() - last_time_right_sensor >= 50) {
-    right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
-    last_time_right_sensor = millis();
-  } 
+if(millis() - last_time_front_sensor >= 50) {
+  front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
+  last_time_front_sensor = millis();
+} 
 
-  if(debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: " 
-         << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
-  #endif // USE_DISTANCE_SENSORS
+if(millis() - last_time_left_sensor >= 50) {
+  left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
+  last_time_left_sensor = millis();
+} 
 
+if(millis() - last_time_right_sensor >= 50) {
+  right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
+  last_time_right_sensor = millis();
+} 
+
+if(debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: " 
+        << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
+#endif // USE_DISTANCE_SENSORS
 ```
 
-To make the robot move in a straight line we are using the gyro. The library we are using for it is _"BMI088.h"_.
+## Gyroscope
+
+We also have a gyroscope to help with driving straight and taking turns. The library we are using for it is _"BMI088.h"_.
 
 ```ino
 #include "BMI088.h"
 ```
 
-We defined 2 constants: one for the numbers of samples we are using to detemine the angle we are at, and the other one is the period of time i which we are calculating the drift of the gyro, so we know how much we need to compesate for it.
+We defined a constant - the period of time in which we are calculating the drift of the gyro, so we know how much we need to correct for it.
 
 ```ino
-#define GYRO_SAMPLE_SIZE 1
 #define DRIFT_TEST_TIME 10
 ```
 
-We had to initilized it first.
+We had to initilized it first, the parameters are: the I2C port, the address of the sensor, and the address of the accelerometer.
 
 ```ino
 // Gyro sensor
 Bmi088 bmi(Wire, 0x19, 0x69);
 ```
-In the setup we calculate the value we need to add so the gyro doesn't have a such a big drift anymore.
+
+In the setup, we calculate the drift of the gyro, so we can correct for it later.
 
 ```ino
 #ifdef USE_GYRO
-  int status = bmi.begin();
-  bmi.setOdr(Bmi088::ODR_400HZ);
-  bmi.setRange(Bmi088::ACCEL_RANGE_6G,Bmi088::GYRO_RANGE_500DPS);
-  if(status < 0) {
-    if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
-    init_error = init_gyro_error = true;
-  }
-  else  {
-    // Gyro drift calculation
-    if(debug) Serial.println("Starting gyro drift calculation...");
+int status = bmi.begin();
+bmi.setOdr(Bmi088::ODR_400HZ);
+bmi.setRange(Bmi088::ACCEL_RANGE_6G,Bmi088::GYRO_RANGE_500DPS);
+if(status < 0) {
+  if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
+  init_error = init_gyro_error = true;
+}
+else  {
+  // Gyro drift calculation
+  if(debug) Serial.println("Starting gyro drift calculation...");
 
-    gx = 0;
-    gy = 0;
-    gz = 0;
-
-    gyro_last_read_time = millis();
-
-    double start_time = millis();
-    while(millis() - start_time < DRIFT_TEST_TIME * 1000) {
-      bmi.readSensor();
-      double read_time = millis();
-
-      gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
-      gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
-      gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
-
-      gyro_last_read_time = read_time;
-    }
-
-    drifts_x = gx / DRIFT_TEST_TIME;
-    drifts_y = gy / DRIFT_TEST_TIME;
-    drifts_z = gz / DRIFT_TEST_TIME;
-
-    if(debug) Serial.print("Drift test done!\nx: ");
-    if(debug) Serial.print(drifts_x, 6);
-    if(debug) Serial.print("   y: ");
-    if(debug) Serial.print(drifts_y, 6);
-    if(debug) Serial.print("   z: ");
-    if(debug) Serial.println(drifts_z, 6);
-  }
-  // Gyro value reset
   gx = 0;
   gy = 0;
   gz = 0;
 
   gyro_last_read_time = millis();
-  #endif // USE_GYRO
 
+  double start_time = millis();
+  while(millis() - start_time < DRIFT_TEST_TIME * 1000) {
+    bmi.readSensor();
+    double read_time = millis();
+
+    gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
+    gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
+    gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
+
+    gyro_last_read_time = read_time;
+  }
+
+  drifts_x = gx / DRIFT_TEST_TIME;
+  drifts_y = gy / DRIFT_TEST_TIME;
+  drifts_z = gz / DRIFT_TEST_TIME;
+
+  if(debug) Serial.print("Drift test done!\nx: ");
+  if(debug) Serial.print(drifts_x, 6);
+  if(debug) Serial.print("   y: ");
+  if(debug) Serial.print(drifts_y, 6);
+  if(debug) Serial.print("   z: ");
+  if(debug) Serial.println(drifts_z, 6);
+}
+// Gyro value reset
+gx = 0;
+gy = 0;
+gz = 0;
+
+gyro_last_read_time = millis();
+#endif // USE_GYRO
 ```
 
-Like the ultrasonic sensors, we don't have a specific function made by us for getting data for the gyro. Still we are reading data with it in the loop, by calling the function _allSensors_.
+In the _void loop_ we are reading the data from the gyro, and we are correcting for the drift. As the gyro is giving us the data in radians, we need to convert it to degrees. Also, we are correcting the sign of the data, because the gyro is giving us the data in the opposite direction we need it.
 
 ```ino
 /// Gyro
-  #ifdef USE_GYRO
-  bmi.readSensor();
-  double read_time = millis();
+#ifdef USE_GYRO
+bmi.readSensor();
+double read_time = millis();
 
-  gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-  gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-  gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
 
-  gyro_last_read_time = read_time;
+gyro_last_read_time = read_time;
 
-  if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
-  #endif // USE_GYRO
-
-  
-  /// Led blink
-  #ifdef USE_LED
-  if(millis() - led_previous_time >= led_interval) {
-    led_previous_time = millis();
-
-    if (led_state == LOW) {
-      led_state = HIGH;
-    } else {
-      led_state = LOW;
-    }
-
-    digitalWrite(LED_PIN, led_state);
-  }
-  #endif // USE_LED
+if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
+#endif // USE_GYRO
 ```
 
-Because we are using Teensy 4.1, which is a board similar to arduino, we can't see the data the robot is reading in real time, but still need to know what the robot is reading. So we found a solution, which is quite simple. We can storage everything the robot is reading on a SD Card, because the Teensy has a port for SD Cards, which is perfect in this situation. The libraries we used for this is _SD.h_ and _SPI.h_.
+## Sd Card
+
+Because we are using Teensy 4.1, which is a board similar to arduino, we can't see the data the robot is reading in real time, but still need to know what the robot is reading. So we found a solution, which is quite simple. We log everything the robot is reading on a SD, because the Teensy has a port for SD cards, which is perfect in this situation. The libraries we used for this is _SD.h_ and _SPI.h_.
 
 ```ino
 #include <SD.h>
@@ -453,7 +453,8 @@ To use the SD Card we defined the pin we are using.
 // SD Card
 #define chipSelect BUILTIN_SDCARD
 ```
-For writing data in a file on the SD Card we made two functions. The function named _file_print_ is writig the date without enters in the file. Meanwhile, the function _file_println_ is writing the data with a enter after the string in the file. Both of them have a parameter of type _String_, names _s_, which is the data that we are writing in the file. 
+
+For writing data in a file on the SD card we made two functions. The function named _file_print_ is writig the date without a newline character in the file, unlike the function _file_println_. Both of them have a parameter of type _String_, which is the data that we are writing in the file. 
 
 ```ino
 /// SD card
@@ -474,7 +475,9 @@ void file_println(String s) {
 }
 ```
 
-Even though, we are storing the data on the SD Card, we also have a display, so we can check in real time what the sensors and the camera are reading.
+## Display
+
+Even though, we are storing the data on the SD Card, we also have a display, so we can check things in real time.
 
 First we initialized the display.
 
@@ -516,7 +519,6 @@ void display_print(const double n, const char *sufix = "") {
   #endif // USE_DISPLAY
 }
 
-
 void display_print(const double a, const double b) {
   #ifdef USE_DISPLAY
   char s1[100], s2[100];
@@ -530,3 +532,31 @@ void display_print(const double a, const double b) {
   #endif // USE_DISPLAY
 }
 ```
+
+<br>
+
+# Resources
+
+## 3D Models
+<li> Pixy cam 2.1 - <a>https://grabcad.com/library/cmucam-pixy-2-2</a>
+<li> DC motor - <a>https://grabcad.com/library/12v-dc-motor-6</a>
+<li> Servo motor - <a>https://grabcad.com/library/servomotor-mg996r-4</a>
+<li> Battery - <a>https://grabcad.com/library/turnigy-nano-tech-2200mah-4s-25-50c-lipo-battery-pack-1</a>
+<li> Gyro sensor - <a>https://grabcad.com/library/mpu6050-1</a>
+<li> Ultrasonic sensor - <a>https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1</a>
+<li> Display - <a>https://grabcad.com/library/ssd1312-oled-display-0-96-1</a>
+<li> Button - <a>https://grabcad.com/library/button-pcb-12mm-1</a>
+<li> Teensy 4.1 - <a>https://grabcad.com/library/teensy-4-1-2</a>
+<li> Sparkfun motor driver - <a>https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1</a>
+<li> Prototype board - <a>https://grabcad.com/library/pcb-prototype-development-board-6x8-cm-1</a>
+<li> Linear voltage regulator - <a>https://grabcad.com/library/linear-voltage-regulators-78xx-1</a>
+
+<br>
+
+## Images
+<li> MG996R Servo motor - <a>https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg</a>
+<li> DC geared motor - <a>https://www.adafruit.com/product/4416</a>
+<li> Pixy cam 2.1 - <a>https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg</a>
+<li> LiPo battery - <a>https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg</a>
+
+<li> Linear voltage regulator <a>https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg</a>
