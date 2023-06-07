@@ -1,6 +1,6 @@
 # Nerdvana_Nemesis_2023
 
-## Photos our robot Paula V2 (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate robot V2)
+## Photos of our robot Paula V2 (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate robot V2)
 | <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
 | :--: | :--: | 
 | *Front* | *Back* |
