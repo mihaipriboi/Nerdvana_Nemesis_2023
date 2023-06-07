@@ -1,7 +1,18 @@
 # Nerdvana_Nemesis_2023
 
+## Photos our robot Paula V2 (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate robot V2)
+| <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
+| :--: | :--: | 
+| *Front* | *Back* |
+| <img src="./images/robot_images/robot_left.jpg" width="90%" /> | <img src="./images/robot_images/robot_right.jpg" width="85%" /> | 
+| *Left* | *Right* |
+| <img src="./images/robot_images/robot_top.jpg" width="90%" /> | <img src="./images/robot_images/robot_bottom.jpg" width="85%" /> | 
+| *Top* | *Bottom* |
+
+<br>
+
 # Mobility Management
-![Powertrain - 3D Model](./images/powertrain.png "Powertrain - 3D Model")
+![Powertrain - 3D Model](./images/resources/powertrain.png "Powertrain - 3D Model")
 
 ## Mechanical components
 After our experience from last year's edition, where we used a back-wheel drive with a differential, we decided to go with a AWD system. We chose this system because the BWD had a hard time steering as there is no power on the steering wheels. Also, an AWD system assure a more stable power distribution.
@@ -14,29 +25,29 @@ We've tried different steering mechanisms like the _Ackermann steering_ or the _
 
 ### All-wheel drive
 
-![Powertrain - 3D Model](./images/powertrain_bottom_text.png "Powertrain - 3D Model")
+![Powertrain - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
 
 As we said, we've designed 3D printed parts to connnect the electronic components to the lego structure.
 
 First of all, for the DC motor we've made a tiny piece that links its axle to a normal lego axle.
 
 ### Gearmotor to axle 
-![Gearmotor to axle - 3D Model](./images/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
+![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
 
 For the servo motor, to connect its axle to the drivetrain, we've made another piece to comvert its axle to a lego one.
 
 ### MG996 to axle
-![MG996 to axle - 3D Model](./images/MG996R_to_axle.png "MG996 to axle")
+![MG996 to axle - 3D Model](./images/resources/MG996R_to_axle.png "MG996 to axle")
 
 Now, we had to attach the motors to our drivetrain, so that we can have a stady contruction without components hanging only in their cables.
 
 Therefore, the pierce below is used to connnect the DC motor to the lego structure and we've placed it at the back of the robot.
 
-![Gearmotor support lego - 3D Model](./images/GM25_GEARMOTOR_Support_lego.png "Gearmotor support lego")
+![Gearmotor support lego - 3D Model](./images/resources/GM25_GEARMOTOR_Support_lego.png "Gearmotor support lego")
 
 In the case of the servor motor, because it has a diffrent shape than the DC motor, we've made a completely diffrent piece. Also we've put the servo motor in the front of the robot, with its axel facing the ground.
 
-![MG996 support lego - 3D Model](./images/servo_MG996R.png "MG996 support lego")
+![MG996 support lego - 3D Model](./images/resources/servo_MG996R.png "MG996 support lego")
 
 
 <br>
@@ -45,21 +56,21 @@ In the case of the servor motor, because it has a diffrent shape than the DC mot
 
 As for the electrical components, we've used a servo motor (MG996R) for steering and a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). As we metioned before we used 3D printed parts, designed by us, to connect the motors to the the contruction made of lego pieces. 
 ### Servo motor
-![MG996R Servo](./images/MG996R.webp "MG996R Servo")
+![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
 ### Drive motor
-![Geared DC Motor w/Encoder](./images/drive_motor.jpg "Geared DC Motor w/Encoder")
+![Geared DC Motor w/Encoder](./images/resources/drive_motor.jpg "Geared DC Motor w/Encoder")
 
 To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
 ### Motor Driver
-![Geared DC Motor w/Encoder](./images/motor_driver.jpg "Geared DC Motor w/Encoder")
+![Geared DC Motor w/Encoder](./images/resources/motor_driver.jpg "Geared DC Motor w/Encoder")
 
 # Power and Sense Management
 
 Last year we've made a robot that used Raspberry Pi, but also Arduino.After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
 ### Teensy 4.1
-![Teensy 4.1](./images/teensy.jpg " Teensy 4.1")
+![Teensy 4.1](./images/resources/teensy.jpg " Teensy 4.1")
 
 Why did we choose this board, you may ask. Well, we wanted to have as more special pins (example IC2 and interrupt pins) and is much faster in comparison to the arduino, the teensy having a 600 MHz frequency and a flash memory of 8 Mbytes, while an Arduino Every (this arduino board we've used last year) has a 20MHz freqency and a flash memory of 48 KB.
 
@@ -68,44 +79,85 @@ So this year our work was much easier, because we didn't have problems, such as 
 Regarding the distance sensor, it is a long story. At first, after the international we've thought that using a lidar (VL53L0X) sensor for mesuring distances was a great idea, but it turned out that it wasn't so great. There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
 
 ### Lidar sensor
-![Lidar sensor VL53L0X)](./images/VL53L0X.png "Lidar sensor VL53L0X)")
+![Lidar sensor VL53L0X)](./images/resources/VL53L0X.png "Lidar sensor VL53L0X)")
 
 After we've realised we need to find another solution, we've decided to go back to our long friends: the ultrasonic sensors. And we can say that this year they are more reliable. They are giving us more accurate reading, because we've incressed the frequency that we are reading with and we are processinng the data much faste. The model that we are using is
 grove ultrasonic distance sensor (HC-SR04). We have one on each side (right and left) and one in the front of the robot.
 
 ### Ultrasonic sensor (HC-SR04)
-![Ultrasonic sensor (HC-SR04)](./images/ultrasonic.png "Ultrasonic sensor (HC-SR04)")
+![Ultrasonic sensor (HC-SR04)](./images/resources/ultrasonic.png "Ultrasonic sensor (HC-SR04)")
 
 Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensor we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones.
 
 ### Gyro sensor (BMI088)
-![Gyro sensor (BMI088)](./images/gyro.jpg "Gyro sensor (BMI088)")
+![Gyro sensor (BMI088)](./images/resources/gyro.jpg "Gyro sensor (BMI088)")
 
 As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
 
 ### Li-Po Battery
-![Li-Po Battery](./images/battery.png "Li-Po Battery")
+![Li-Po Battery](./images/resources/battery.png "Li-Po Battery")
 
 One of our biggest drawbacks last year was the speed of the camera readings. We were using a Raspberry Pi with the PiCam V2. Mainly because we had to do the cube recognition machine learning algorithm and procces it on the Raspberry Pi, the fps of the proccesed images was pretty low, about 15. This also cost the other readings on the Raspberry Pi to slow down.
 
 Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
 
 ### Pixy cam 2.1
-![Pixy cam 2.1](./images/pixy.png "Pixy cam 2.1")
+![Pixy cam 2.1](./images/resources/pixy.png "Pixy cam 2.1")
 
 In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
 
 Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
 
 ### Voltage regulator (L7805CV)
-![Voltage regulator (L7805CV)](./images/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
+![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
 ### Circuit diagram
-![Circuit diagram](./images/circuit.png "Circuit diagram")
+![Circuit diagram](./images/resources/circuit.png "Circuit diagram")
 
 <br>
 
 # Obstacle Management
+The next step in order to solve this year's challenge was to make the robot avoid the obstacles. For this we used not one, but two Pixy cameras. This way, we could obtain a wider imagine without using any lens. Now you may ask how did we used this cameras to avoid the obstacles.
+
+Well the answer is simple. We used a PID controller, which is helping us to keep the robot at a specific distance from the obstacles. The PID controller is using the data from the two cameras,that are placed on the left and right side of the robot, to get the position of the cube, which is in front of us. Based on the position of the cube, the PID controller is giving us a value, which is the angle we need to rotate the servo motor, in order to keep the robot at a specific distance from the cube.
+
+```ino
+pid_error = (cube.x - image_w / 2 + cube.color * 15) * kp + integral * ki + (pid_error - pid_last_error) * kd;
+integral += pid_error;
+pid_last_error = pid_error;
+
+move_servo(pid_error);
+```
+
+As you can see we are keeping the red cube on the left of the robot, while the green cube on the right. We are stopping the PID when we are at a distance of 35cm or smaller from the cube, because we don't want to bump into it. 
+
+The distances, at which we keep the cubes away is still small, so we still need to make sure we avoid them without bumping into them. So if our ultrasonic sensor, which is placed at the front of the robot ,detects a cube at a distance smaller than 35cm, we stop the robot and rotate the servo motor to the left or right, depending on the color of the cube, so we can avoid it.
+
+```ino
+double angle = curr_angle + last_cube_color * (avoid_angle);
+
+  
+  if ((-last_cube_color) * (gz - angle) > 0 && flag == 0) {
+    move_servo(last_cube_color);
+    ignore_index = last_cube_index;
+    into_turn_cube = last_cube_color;
+  } else if (abs(gz - current_angle) > 4) {
+    flag = 1;
+    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+    integral_gyro += pid_error_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+    move_servo(-pid_error_gyro);
+  } else {
+    move_servo(0);
+    if(flag_straight)
+      loop_case = GO_STRAIGHT_CASE;
+    else {
+      loop_case = TURN_CASE;
+    }
+  }
+```
+
+
 
 Now that we had all the components that we were gonna use, the next step was to test them and make specific functions for each of them.
 
