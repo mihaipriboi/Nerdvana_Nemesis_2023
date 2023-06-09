@@ -1,5 +1,12 @@
 # Nerdvana_Nemesis_2023
 
+### Team: Mihai Priboi, Antonia Onisoru, Teodor Balan
+  ![Team](./images/team_image.jpg)
+
+## Our video of the robot on [Youtube](https://youtu.be/QVi7v2j4KB4)
+
+<br>
+
 ## Photos our robot Paula V2 (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate robot V2)
 | <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
 | :--: | :--: | 
@@ -59,11 +66,11 @@ As for the electrical components, we've used a servo motor (MG996R) for steering
 ![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
 ### Drive motor
-![Geared DC Motor w/Encoder](./images/resources/drive_motor.jpg "Geared DC Motor w/Encoder")
+![DC Motor](./images/resources/drive_motor.jpg "DC Motor")
 
 To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
 ### Motor Driver
-![Geared DC Motor w/Encoder](./images/resources/motor_driver.jpg "Geared DC Motor w/Encoder")
+![Motor driver](./images/resources/motor_driver.png "Motor driver")
 
 # Power and Sense Management
 
@@ -117,55 +124,380 @@ Because we wanted the robot to be as fast as possible, the motor driver is power
 <br>
 
 # Obstacle Management
-The next step in order to solve this year's challenge was to make the robot avoid the obstacles. For this we used not one, but two Pixy cameras. This way, we could obtain a wider imagine without using any lens. Now you may ask how did we used this cameras to avoid the obstacles.
 
-Well the answer is simple. We used a PID controller, which is helping us to keep the robot at a specific distance from the obstacles. The PID controller is using the data from the two cameras,that are placed on the left and right side of the robot, to get the position of the cube, which is in front of us. Based on the position of the cube, the PID controller is giving us a value, which is the angle we need to rotate the servo motor, in order to keep the robot at a specific distance from the cube.
+Now we needed to put everything we've made so far to test. And the best test is the qualifing round. Our qualifing strategy is quite simple. We are using a PID controller based on the gyro to keep the robot moving streight and to make it turn to the next side. Also we are using the ultrasonic sensors, placed on the left and right side of the robot, to determine the direction i which the robot needs to move. Because one of the ultrasonic sensors placed on the sides are going to read a distance greater than 100cm before we need to make a turn, we can use this to decide the direction the robot needs to move.
 
 ```ino
-pid_error = (cube.x - image_w / 2 + cube.color * 15) * kp + integral * ki + (pid_error - pid_last_error) * kd;
+// We are deciding the direction the robot needs to move only once at the beginning of the round, before the first turn
+if(turn_direction == 0) {
+  if(left_sensor_cm > 100)
+    turn_direction = -1;
+  if(right_sensor_cm > 100)
+    turn_direction = 1;
+
+  if(turn_direction) {
+    read_lidars = false;
+    if(debug) Serial << "Turn direction is: " << turn_direction << "\n";
+  }
+}
+
+// We are reading the ultrasonic front sensor and verify if we need to turn
+if(front_sensor_cm > 0 && front_sensor_cm < distance_to_wall_for_turn) {
+  // If we need to turn we are calculating the angle at which we need to turn
+  if(millis() - last_turn_time > turn_delay) {
+    current_angle += turn_angle * turn_direction;
+    if( turn_direction ==  -1 )
+      current_angle += turn_angle_left * turn_direction;
+    turns++;
+    last_turn_time = millis();
+  }
+}
+
+if(debug) Serial << "Turns: " << turns << "\n";
+
+// PID algorithm based on gyro
+pid_error = (gz - current_angle) * kp - (pid_last_error - pid_error) * kd;
+pid_last_error = pid_error;
+
+move_servo(pid_error);
+
+if(debug) Serial << "Servo angle: " << pid_error << "\nStraight angle: " << current_angle << "\n";
+
+// Last turn
+
+// We are done with the last turn
+if(turns == 12) {
+  last_drive_start_cm = read_motor_encoder();
+  turns++;
+}
+
+// Stop
+// We are making sure that the robot is stopping at the right spot
+if(turns == 13 && read_motor_encoder() - last_drive_start_cm >= last_drive_cm) {
+  motor_stop();
+  delay(100000);
+}
+```
+
+The next step in order to solve this year's challenge was to make the robot avoid the obstacles, in order to solve the final round. For this we used not one, but two Pixy cameras. This way, we could obtain a wider imagine without using any lens. Now you may ask how did we used this cameras to avoid the obstacles.
+
+Well the answer is simple. We used a PID controller, which is helping us to keep the cube at the center of the picture. The PID controller is using the data from the camera to calculate the error, which is the difference between the center of the picture and the x axies coordonate of the cube. The PID controller is using this error to calculate the angle he's going to rotate the servo motor.
+
+```ino
+pid_error = (cube.x - image_w / 2) * kp + integral * ki + (pid_error - pid_last_error) * kd;
 integral += pid_error;
 pid_last_error = pid_error;
 
 move_servo(pid_error);
 ```
 
-As you can see we are keeping the red cube on the left of the robot, while the green cube on the right. We are stopping the PID when we are at a distance of 35cm or smaller from the cube, because we don't want to bump into it. 
-
-The distances, at which we keep the cubes away is still small, so we still need to make sure we avoid them without bumping into them. So if our ultrasonic sensor, which is placed at the front of the robot ,detects a cube at a distance smaller than 35cm, we stop the robot and rotate the servo motor to the left or right, depending on the color of the cube, so we can avoid it.
+It is obvious, that the cube will be right in front of the robot, so we need to make sure that we are not going to bump into it. In order to avoid this, we are using the ultrasonic sensor that is placed in the front of the robot. If the sensor detects a cube at a distance smaller than 35cm, we stop the robot and rotate the servo motor to the left or right, depending on the color of the cube, so we can avoid it.
 
 ```ino
 double angle = curr_angle + last_cube_color * (avoid_angle);
+    
+if ((-last_cube_color) * (gz - angle) > 0 && flag == 0) {
+  move_servo(last_cube_color);
+  // ignore_index = last_cube_index;
+  into_turn_cube = last_cube_color;
+} else if (abs(gz - current_angle) > 4) {
+  flag = 1;
+  pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+  integral_gyro += pid_error_gyro;
+  pid_last_error_gyro = pid_error_gyro;
+  move_servo(-pid_error_gyro);
+} else {
+  move_servo(0);
 
-  
+  if (front_sensor_cm > 120)
+    flag_straight = true;
+
+  if (flag_straight)
+    loop_case = GO_STRAIGHT_CASE;
+  else {
+    loop_case = TURN_CASE;
+  }
+}
+
+```
+
+This is not all, because we still need to make the robot to turn and make full laps, so having an algoritm with which we are avoiding the cubes is not enought. To solve the this round we decided that if we can avoid on a side corectly and can go to the next one without bumping in a cube than we can solve the problem, because we can have a loop that has 2 stages: one for avoiding the cubes and one for turninng to get to the next side.
+
+So in our strategy we are focusing on avoinding the cubes on the side we are on and turning to the text side. In order to do that, we've came up with a startegy that is based on 6 stages, based on the cubes we are reading and the position of the robot.
+
+At the very first of our round we are deciding which is the direction of the robot needs to move and also in which stated we need to start first.
+
+If we don't see any cube will go to _STRAIGHT_CASE_ and if we see a cube we will go to _CUBE_PID_CASE_.
+In the _STRAIGHT_CASE_ we are going to move forward using a PID controller based on the gyro sensor.
+
+```ino
+// If we see a cube in front of us we are going to the _CUBE_PID_CASE_ and if we don't we are going to the _STRAIGHT_CASE_
+if (front_sensor_cm < 100 || actual_cube_nr > 1)
+  loop_case = CUBE_PID_CASE;
+else if ((turn_direction == -1 && pixy_left.ccc.numBlocks > 0) || (turn_direction == 1 && pixy_right.ccc.numBlocks > 0))
+  loop_case = CUBE_PID_CASE;
+else
+  loop_case = GO_STRAIGHT_CASE;
+```
+
+In the first stage  _CUBE_PID_CASE_  we are doing a PID to keep the cube in front of us in the middle of the image, so we can avoid it when the front sensor is reading a distance less than 35cm. If we don't have a cube in front of us, we are going to keep moving forwward, until we see a distance less than 35cm with our front sensor.
+
+In this stage we are also read the color for the next cube, and we are deciding how to do the turn based on this. Because we are using two cameras then imagine that we can see with the robot is pretty wide. So we can see the first cube on the next side, if is one on the first posision. We are using this to determine the type of turn we need to use, in order to avoid the next cube, while turning  to the next side.
+
+```ino
+case CUBE_PID_CASE: {
+  if (cube.color == 0) {
+    move_servo(0);
+  } else {
+    if ((front_sensor_cm > 35 && front_sensor_cm > 0)) {
+      // We are doing a PID to keep the cube in front of us in the middle of the image
+      pid_error = (cube.x - image_w / 2) * kp + integral * ki + (pid_error - pid_last_error) * kd;
+      integral += pid_error;
+      pid_last_error = pid_error;
+
+      move_servo(pid_error);
+
+      last_cube_color = cube.color;
+      last_cube_index = cube.index;
+    } else {
+      file_println(corner_cube.color);
+      
+      // We are reading the next cube color and deciding which type of turn we need to do
+
+      out_turn_cube = corner_cube.color;
+
+      if (turn_direction == -1) {  // cube on the left side
+        if (out_turn_cube == -1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; } 
+        else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; }
+        else if (out_turn_cube == 1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; }
+      } else {
+        if (out_turn_cube == -1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; } 
+        else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; } 
+        else if (out_turn_cube == 1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; }
+      }
+
+      // if we see only 1 cube, we don't want to use the beaconing system
+      if (actual_cube_nr == 1) {
+        out_turn_cube = 0;
+      }
+
+      // We are  moving to the next case / stage 
+
+      flag = 0;
+      curr_angle = gz;
+      flag_straight = 0;
+      loop_case = AVOID_CASE;
+      avoid_start_time = millis();
+    }
+  }
+
+  break;
+}
+```
+
+The second stage is _AVOID_CASE_, in which we are avoiding a cube if we have one in front of us. To avoid the cube the first part of the avoiding move we are doing mechanically and the second part we are using a PID algorithm based on the gyro to center again the robot. After the robot finished avoiding the robot, we are moving to the next stage, named _TURN_CASE_.
+
+If we don't have a cube to avoid, again we are going to go to the _STRAIGHT_CASE_.
+
+```ino
+case AVOID_CASE: {
+  double angle = curr_angle + last_cube_color * (avoid_angle);
+
+  // The first part of the avoidig move (mechanically)  
   if ((-last_cube_color) * (gz - angle) > 0 && flag == 0) {
     move_servo(last_cube_color);
-    ignore_index = last_cube_index;
     into_turn_cube = last_cube_color;
   } else if (abs(gz - current_angle) > 4) {
     flag = 1;
+
+    // The second part of the avoiding move (PID based on gyro)
     pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
     integral_gyro += pid_error_gyro;
     pid_last_error_gyro = pid_error_gyro;
     move_servo(-pid_error_gyro);
   } else {
     move_servo(0);
-    if(flag_straight)
+
+    if (front_sensor_cm > 120)
+      flag_straight = true;
+
+    // Deciding which is the next stage
+    if (flag_straight)
       loop_case = GO_STRAIGHT_CASE;
     else {
       loop_case = TURN_CASE;
     }
   }
+
+  break;
+}
 ```
 
+The _TURN_CASE_ is our third case, in which we are preparing to make the turn to the next side. First we are stopping to the distance we've calculated earlier in the _AVOID_CASE_. This way if we have a red or green cube first on the next side we know how far away we need to be to make the turn to avoid it. After we've stopped we are setting the angle at which the robot needs to turn, and going to the next stage, _GYRO_PID_CASE_.
 
+```ino
+case TURN_CASE: {
 
-Now that we had all the components that we were gonna use, the next step was to test them and make specific functions for each of them.
+  // PID based on gyro
+  pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+  integral_gyro += pid_error_gyro;
+  pid_last_error_gyro = pid_error_gyro;
+
+  move_servo(-pid_error_gyro);
+
+  // We are stopping the robot at the distance we've calculated earlier ,calculating the angle at which we need to turn and going to the next stage
+  if (front_sensor_cm < wall_dist) {
+    current_angle += turn_angle * turn_direction;
+    turns++;
+    turn_encoder = 80 - left_sensor_cm;
+    loop_case = GYRO_PID_CASE;
+  }
+
+  break;
+}
+```
+
+In the fourth stage, _GYRO_PID_CASE_, is more complicated than the rest of the stages, as you can see. In the first part of the case we are making the turn, so we are on the next side. After finishing the turn there a are two possible cases that we can encounter: if we saw a cube before the turn or if we didn't.
+
+If we saw a cube before the turn, we are going to keep moving forward for a fixed distance, this way we are sure that the robot avoided the cube and passed it. Now that the robot have passed the cube we can turn back to the first stage, _CUBE_PID_CASE_.
+
+If we didn't see a cube before the turn, we are still going to move forward for a fixed distance, to be sure that the robot is between the two black walls on the side, and then we are going back to the first stage, _CUBE_PID_CASE_.
+
+Also if the robot finished all of the 3 laps (12 turns in total), he's going to FINISH_CASE.
+
+```ino
+case GYRO_PID_CASE: {
+  // If we didnt finish the turn we are continuing it
+  if (abs(gz - current_angle) > 8) {
+
+    // PID based on gyro
+    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+    integral_gyro += pid_error_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(-pid_error_gyro);
+
+    turn_start_encoder = read_motor_encoder();
+  } else {
+    // If we saw a cube before the turn 
+    if (out_turn_cube != 0) {
+      // we are moving forward for a fixed distance or if we are between the two black walls
+      if (left_sensor_cm + right_sensor_cm > 80 || read_motor_encoder() - turn_start_encoder < 15) {
+        pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+        integral_gyro += pid_error_gyro;
+        pid_last_error_gyro = pid_error_gyro;
+
+        move_servo(-pid_error_gyro);
+      } else {
+        // If we are between the two black walls we are going back to the first stage
+        loop_case = CUBE_PID_CASE;
+
+        // If the robot finished all of the 3 laps (12 turns in total), he's going to _FINISH_CASE_
+        if (turns == 12) {
+          start_encoder = read_motor_encoder();
+          loop_case = FINISH_CASE;
+        }
+      }
+    } else {
+      // If we didnt see a cube before the turn we are moving forward for a fixed distance or if we are between the two black walls
+      if (read_motor_encoder() - turn_start_encoder < turn_encoder) {
+        pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+        integral_gyro += pid_error_gyro;
+        pid_last_error_gyro = pid_error_gyro;
+
+        move_servo(-pid_error_gyro);
+      } else {
+        //if we are between the two black walls we are going back to the first stage
+        loop_case = CUBE_PID_CASE;
+        motor_stop();
+        delay(100000);
+
+         // If the robot finished all of the 3 laps (12 turns in total), he's going to _FINISH_CASE_
+        if (turns == 12) {
+          start_encoder = read_motor_encoder();
+          loop_case = FINISH_CASE;
+        }
+      }
+    }
+  }
+  break;
+}
+```
+
+Our fifth case is the _GO_STRAIGHT_CASE_. We are using this case, usually, if we don't have a cube in front of us that needs to be avoided. So in this case we are moving forward, using a PID algorithm based on the gyro sensor, until we reached a distance smaller than 110cm with the front sensor. After we've reached this distance we are going to decide the color of the next first cube of the next side, what type of turn we need to make. And when we finished determining the color of the cube we are going to the next stage, _TURN_CASE_.
+
+```ino
+case GO_STRAIGHT_CASE: {
+  if (front_sensor_cm > 110) {
+
+    //we are moving forward using a PID based on gyro util we see with the front sensor a distance smaller than 110cm
+    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+    integral_gyro += pid_error_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(-pid_error_gyro);
+  } else {
+    // We are reading the color of the next cube and deciding which type of turn we need to make 
+
+    file_println(cube.color);
+    out_turn_cube = cube.color;
+
+    if (turn_direction == -1) {  // cube on the left side
+      if (out_turn_cube == -1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; } 
+      else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; }
+      else if (out_turn_cube == 1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; }
+    } else {
+      if (out_turn_cube == -1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; } 
+      else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; } 
+      else if (out_turn_cube == 1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; }
+    }
+
+    // if we see only 1 cube, we don't want to use the beaconing system
+    if (actual_cube_nr == 1) {
+      out_turn_cube = 0;
+    }
+
+    //We are going to the first stage
+    flag = 0;
+    curr_angle = gz;
+    loop_case = TURN_CASE;
+    avoid_start_time = millis();
+  }
+  break;
+}
+```
+
+Last but not least, we have the _FINISH_CASE_, in which we are moving 10cm forward to be sure we are stopping as we where we should and then we are stopping the robot.
+
+```ino
+case FINISH_CASE: {
+  // We are moving 10cm forward to be sure we are stopping as we where we should
+  if( read_motor_encoder() - start_encoder < 10 ){
+    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
+    integral_gyro += pid_error_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(-pid_error_gyro);
+  } else{
+    // We are stopping the robot
+    motor_stop();
+    delay(1000);
+  }
+  break;
+}
+```
+
+In conclusion, as we can see, our strategy is based on the idea of avoiding the cube before the turning to the next side, reading the first cube on the next side, if there is any, turning based on the color of the next cube to avoid it while turning, reapiting this process until we finished all of the 3 laps. We implemented this strategy using a state machine with 6 stages, all of which are showed below and explined above.
+
+<br>
+
+# Code for each component
 
 ## Drive Motor
 
-So we started with the motors. We didn't need to include a specific library to control the motor driver, beacause arduino (and Teensy) have inbuilt functions for this. 
+We didn't need to include a specific library to control the motor driver, beacause arduino (and Teensy) have inbuilt functions for this. 
 
-First, we need to define the pins we need.
+First, we define the pins we need.
 
 ```ino
 // Motor driver
@@ -198,13 +530,13 @@ void motor_stop() {
 }
 ```
 
-If for the motor we didn't import a labrary for it, for the encoder we had to. The library we are using this year is named _Encoder.h_. 
+If for the motor we didn't import a library for it, for the encoder we had to. The library we are using is named _Encoder.h_. 
 
 ```ino
 #include <Encoder.h>
 ```
- 
-As we had earlier, the first step is to define the pins we are going to use for the component.
+
+As earlier, the first step is to define the pins we are going to use for the component.
 
 ```ino
 // Motor Encoder
@@ -351,7 +683,7 @@ void signature_to_cube_color(double current_angle, int current_side) {
 
 ## Ultrasonic Sensors
 
-For mesuring distances, as we said ealier, we are using ultrasound sensors. For them we used the library _Ultrasonic.h_.
+For mesuring distances we are using ultrasound sensors, using the library _Ultrasonic.h_.
 
 ```ino
 #include "Ultrasonic.h"
@@ -585,7 +917,321 @@ void display_print(const double a, const double b) {
 }
 ```
 
+Also in both the qualifing round and final round we have to setup all our components, and we did it like below:
+
+```ino
+void setup() {
+  Serial.begin(115200);
+
+
+  // if serial is not available
+  while (!Serial && (millis() < 2000));
+
+  if (Serial) debug = true;
+  debug = false;
+
+  /// Led
+  #ifdef USE_LED
+  pinMode(LED_PIN, OUTPUT);
+  led_state = HIGH;
+  digitalWrite(LED_PIN, led_state);
+  #endif  // USE_LED
+
+  /// Display
+  #ifdef USE_DISPLAY
+  u8g2.begin();
+  u8g2.setFont(u8g2_font_ncenB08_tr);
+  display_print("Starting...");
+  #endif  // USE_DISPLAY
+
+  /// Camera
+  #ifdef USE_CAMERA
+  if (debug) Serial.println(F("Cameras starting..."));
+  display_print("Left cam err!");
+  pixy_left.init(0x54);
+  display_print("Right cam err!");
+  pixy_right.init(0x55);
+  display_print("Cameras ok!");
+  if (debug) Serial.println(F("Cameras ok!"));
+  #endif  // USE_CAMERA
+
+  /// Motor driver
+  #ifdef USE_MOTOR_DRIVER
+  pinMode(PWM1, OUTPUT);
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  #endif  // USE_MOTOR_DRIVER
+
+  /// Servo
+  #ifdef USE_SERVO
+  servo.attach(SERVO_PIN, 1200, 1800);
+  move_servo(0);
+  #endif  // USE_SERVO
+
+  /// Wire
+  Wire.begin();
+
+  /// Gyro sensor
+  #ifdef USE_GYRO
+  int status = bmi.begin();
+  bmi.setOdr(Bmi088::ODR_400HZ);
+  bmi.setRange(Bmi088::ACCEL_RANGE_6G, Bmi088::GYRO_RANGE_500DPS);
+  if (status < 0) {
+    if (debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
+    init_error = init_gyro_error = true;
+  } else {
+    // Gyro drift calculation
+    if (debug) Serial.println("Starting gyro drift calculation...");
+    display_print("Starting gyro", "drift test...");
+
+    gx = 0;
+    gy = 0;
+    gz = 0;
+
+    gyro_last_read_time = millis();
+
+    double start_time = millis();
+    while (millis() - start_time < DRIFT_TEST_TIME * 1000) {
+      bmi.readSensor();
+      double read_time = millis();
+
+      gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
+      gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
+      gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
+
+      gyro_last_read_time = read_time;
+    }
+
+    drifts_x = gx / DRIFT_TEST_TIME;
+    drifts_y = gy / DRIFT_TEST_TIME;
+    drifts_z = gz / DRIFT_TEST_TIME;
+
+    if (debug) Serial.print("Drift test done!\nx: ");
+    if (debug) Serial.print(drifts_x, 6);
+    if (debug) Serial.print("   y: ");
+    if (debug) Serial.print(drifts_y, 6);
+    if (debug) Serial.print("   z: ");
+    if (debug) Serial.println(drifts_z, 6);
+  }
+  // Gyro value reset
+  gx = 0;
+  gy = 0;
+  gz = 0;
+
+  gyro_last_read_time = millis();
+  #endif  // USE_GYRO
+
+
+  #ifdef USE_SD
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present!");
+    init_sd_error = true;
+  } else {
+    Serial.println("Card present!");
+
+    // SD.remove("datalog.txt");
+
+    int i = 0;
+    do {
+      char aux[100];
+      itoa(i, aux, 10);
+
+      memset(sd_filename, 0, sizeof(sd_filename));
+
+      strcat(sd_filename, "datalog_Official_");
+      strcat(sd_filename, aux);
+      strcat(sd_filename, ".csv");
+
+      i++;
+    } while (SD.exists(sd_filename));
+
+    if (debug) Serial.print("Using filename: ");
+    if (debug) Serial.println(sd_filename);
+
+
+    String aux;
+
+    if (!init_error) aux = "ok!";
+    else aux = "error!";
+    data_string = "init: ," + aux + "\n";
+
+    if (!init_sensors_error) aux = "ok!";
+    else aux = "error!";
+    data_string += "dist s: ," + aux + "\n";
+
+    if (!init_gyro_error) aux = "ok!";
+    else aux = "error!";
+    data_string += "gyro: ," + aux + "\n";
+
+    data_string += "drift: ," + String(drifts_z, 6) + "\n";
+
+    file_println(data_string);
+  }
+  #endif  // USE_SD
+
+
+  /// Program start
+  if (!init_error) {
+    digitalWrite(LED_PIN, LOW);
+    display_print("Ready!");
+  } else {
+    if (init_sensors_error && init_gyro_error)
+      display_print("Dist sensors err!", "Gyro err!");
+    else if (init_sensors_error)
+      display_print("Dist sensors err!");
+    else if (init_gyro_error)
+      display_print("Gyro err!");
+  }
+
+  #ifdef USE_BUTTON
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  delay(10);
+
+  Serial.println(digitalRead(BUTTON_PIN));
+  while (digitalRead(BUTTON_PIN) == 1) {
+    Serial.println(digitalRead(BUTTON_PIN));
+    delay(50);
+  }
+  #endif
+
+
+  loop_start_time = millis();
+}
+```
+
+And in the final round code we have a function called _allSensors_, in which we are reading all the sensors we have, and we are writing the data in the file and on the display.
+
+```ino
+void all_Sensors() {
+  /// Print loop iteration
+  if (millis() - loop_last_time > 1000) {
+    loop_freq = loop_temp_iteration * 1000 / (millis() - loop_last_time);
+    loop_temp_iteration = 0;
+    loop_last_time = millis();
+  }
+
+  loop_iteration++;
+  loop_temp_iteration++;
+
+  if (debug) Serial << "Iteration: #" << loop_iteration << " - " << millis() / 1000
+                    << "." << millis() % 1000 << "s - " << loop_freq << "hz\n";
+
+  /// Motor encoder
+  #ifdef USE_MOTOR_ENCODER
+    if (debug) Serial << "Encoder: " << read_motor_encoder() << "\n";
+
+    if (millis() - last_time_motor_speed >= motor_speed_interval) {
+      double current_motor_encoder = (double)myEnc.read() / 47.74;
+      speedX = (current_motor_encoder - last_motor_encoder) * (1000.0 / motor_speed_interval); 
+      last_time_motor_speed = millis();
+      last_motor_encoder = current_motor_encoder;
+    } 
+
+    Serial.print("Speed:");
+    Serial.println(speedX);
+
+
+  #ifdef USE_MOTOR_SAFETY
+    if (millis() - last_safety_time > safety_timeout) {
+      if (abs(current_motor_speed) > 0 && abs(read_motor_encoder() - last_motor_enc) < 1) {
+        file_println("Safety stop: ," + String(read_motor_encoder()) + ", " + String(last_motor_enc));
+        motor_start(0);
+        display_print("Box Box!");
+        delay(999999999);
+      }
+
+      last_safety_time = millis();
+      last_motor_enc = read_motor_encoder();
+    }
+    if (current_motor_speed == 0)
+      last_safety_time = millis();
+
+  #endif  // USE_MOTOR_SAFETY
+
+  #endif  // USE_MOTOR_ENCODER
+
+  /// Camera
+  #ifdef USE_CAMERA
+    if (millis() - camera_last_fps >= camera_fps) {
+      process_cameras();
+
+      camera_last_fps = millis();
+    }
+  #endif  // USE_CAMERA
+
+
+  /// Distance sensors
+  #ifdef USE_DISTANCE_SENSORS
+    if (millis() - last_time_front_sensor >= 50) {
+      front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
+      last_time_front_sensor = millis();
+    }
+
+    if (millis() - last_time_left_sensor >= 50) {
+      left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
+      last_time_left_sensor = millis();
+    }
+
+    if (millis() - last_time_right_sensor >= 50) {
+      right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
+      last_time_right_sensor = millis();
+    }
+
+    if (debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: "
+                      << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
+  #endif  // USE_DISTANCE_SENSORS
+
+
+  /// Gyro
+  #ifdef USE_GYRO
+    bmi.readSensor();
+    double read_time = millis();
+
+    // speedX += (bmi.getAccelX_mss() * (read_time - gyro_last_read_time) * 0.001);
+    // Serial.println("Speed");
+    // Serial.println(speedX);
+
+    gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+    gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+    gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+
+    gyro_last_read_time = read_time;
+
+    if (debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
+  #endif  // USE_GYRO
+
+
+  /// Led blink
+  #ifdef USE_LED
+    if (millis() - led_previous_time >= led_interval) {
+      led_previous_time = millis();
+
+      if (led_state == LOW) {
+        led_state = HIGH;
+      } else {
+        led_state = LOW;
+      }
+
+      digitalWrite(LED_PIN, led_state);
+    }
+  #endif  // USE_LED
+
+
+  /// Display
+  #ifdef USE_DISPLAY
+    if (millis() - display_last_print_time > display_print_interval) {
+      // display_print(current_side, " side");
+      display_print((millis() - loop_start_time) / 1000, (millis() - loop_start_time) % 1000);
+      // display_print(left_sensor_cm, right_sensor_cm);
+      display_last_print_time = millis();
+    }
+  #endif  // USE_DISPLAY
+}
+```
+
 <br>
+
+![Robot animation](./images/resources/explosion.gif "Robot animation")
 
 # Resources
 
@@ -608,7 +1254,23 @@ void display_print(const double a, const double b) {
 ## Images
 <li> MG996R Servo motor - <a>https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg</a>
 <li> DC geared motor - <a>https://www.adafruit.com/product/4416</a>
-<li> Pixy cam 2.1 - <a>https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg</a>
+<li> Sparkfun motor driver - <a>https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg</a>
+<li> Teensy 4.1 - <a>https://circuitpython.org/assets/images/boards/large/teensy41.jpg</a>
+<li> Vl53l0x lidar - <a>https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg</a>
+<li> Grove HC-SR04 ultrasonic - <a>https://files.seeedstudio.com/wiki/Grove_Ultrasonic_Ranger/V2.jpg</a>
+<li> Grove BMI088 gyroscope - <a>https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg</a>
 <li> LiPo battery - <a>https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg</a>
-
+<li> Pixy cam 2.1 - <a>https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg</a>
 <li> Linear voltage regulator <a>https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg</a>
+
+<br>
+
+## Copyright
+
+Unless explicitly stated otherwise, all rights, including copyright, in the content of these files and images are owned or controlled for these purposes by Nerdvana Romania.
+
+You are not permitted to copy, download, store (in any medium), adapt or change in any way the content of these Nerdvana Romania resources for any other purpose whatsoever without the prior written permission of Nerdvana Romania.
+
+For any other use of Nerdvana Romania's content, please get in touch with us at office@nerdvana.ro.
+
+© 2023 Nerdvana Romania. All rights reserved.
