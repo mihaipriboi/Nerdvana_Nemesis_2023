@@ -1237,32 +1237,32 @@ void all_Sensors() {
 # Resources
 
 ## 3D Models
-<li> Pixy cam 2.1 - <a>https://grabcad.com/library/cmucam-pixy-2-2</a>
-<li> DC motor - <a>https://grabcad.com/library/12v-dc-motor-6</a>
-<li> Servo motor - <a>https://grabcad.com/library/servomotor-mg996r-4</a>
-<li> Battery - <a>https://grabcad.com/library/turnigy-nano-tech-2200mah-4s-25-50c-lipo-battery-pack-1</a>
-<li> Gyro sensor - <a>https://grabcad.com/library/mpu6050-1</a>
-<li> Ultrasonic sensor - <a>https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1</a>
-<li> Display - <a>https://grabcad.com/library/ssd1312-oled-display-0-96-1</a>
-<li> Button - <a>https://grabcad.com/library/button-pcb-12mm-1</a>
-<li> Teensy 4.1 - <a>https://grabcad.com/library/teensy-4-1-2</a>
-<li> Sparkfun motor driver - <a>https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1</a>
-<li> Prototype board - <a>https://grabcad.com/library/pcb-prototype-development-board-6x8-cm-1</a>
-<li> Linear voltage regulator - <a>https://grabcad.com/library/linear-voltage-regulators-78xx-1</a>
+<li> Pixy cam 2.1 - [https://grabcad.com/library/cmucam-pixy-2-2](https://grabcad.com/library/cmucam-pixy-2-2)
+<li> DC motor - [https://grabcad.com/library/12v-dc-motor-6](https://grabcad.com/library/12v-dc-motor-6)
+<li> Servo motor - [https://grabcad.com/library/servomotor-mg996r-4](https://grabcad.com/library/servomotor-mg996r-4)
+<li> Battery - [https://grabcad.com/library/turnigy-nano-tech-2200mah-4s-25-50c-lipo-battery-pack-1](https://grabcad.com/library/turnigy-nano-tech-2200mah-4s-25-50c-lipo-battery-pack-1)
+<li> Gyro sensor - [https://grabcad.com/library/mpu6050-1](https://grabcad.com/library/mpu6050-1)
+<li> Ultrasonic sensor - [https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1](https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1)
+<li> Display - [https://grabcad.com/library/ssd1312-oled-display-0-96-1](https://grabcad.com/library/ssd1312-oled-display-0-96-1)
+<li> Button - [https://grabcad.com/library/button-pcb-12mm-1](https://grabcad.com/library/button-pcb-12mm-1)
+<li> Teensy 4.1 - [https://grabcad.com/library/teensy-4-1-2](https://grabcad.com/library/teensy-4-1-2)
+<li> Sparkfun motor driver - [https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1](https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1)
+<li> Prototype board - [https://grabcad.com/library/pcb-prototype-development-board-6x8-cm-1](https://grabcad.com/library/pcb-prototype-development-board-6x8-cm-1)
+<li> Linear voltage regulator - [https://grabcad.com/library/linear-voltage-regulators-78xx-1](https://grabcad.com/library/linear-voltage-regulators-78xx-1)
 
 <br>
 
 ## Images
-<li> MG996R Servo motor - <a>https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg</a>
-<li> DC geared motor - <a>https://www.adafruit.com/product/4416</a>
-<li> Sparkfun motor driver - <a>https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg</a>
-<li> Teensy 4.1 - <a>https://circuitpython.org/assets/images/boards/large/teensy41.jpg</a>
-<li> Vl53l0x lidar - <a>https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg</a>
-<li> Grove HC-SR04 ultrasonic - <a>https://files.seeedstudio.com/wiki/Grove_Ultrasonic_Ranger/V2.jpg</a>
-<li> Grove BMI088 gyroscope - <a>https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg</a>
-<li> LiPo battery - <a>https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg</a>
-<li> Pixy cam 2.1 - <a>https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg</a>
-<li> Linear voltage regulator <a>https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg</a>
+<li> MG996R Servo motor - [https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg](https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg)
+<li> DC geared motor - [https://www.adafruit.com/product/4416](https://www.adafruit.com/product/4416)
+<li> Sparkfun motor driver - [https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg](https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg)
+<li> Teensy 4.1 - [https://circuitpython.org/assets/images/boards/large/teensy41.jpg](https://circuitpython.org/assets/images/boards/large/teensy41.jpg)
+<li> Vl53l0x lidar - [https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg](https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg)
+<li> Grove HC-SR04 ultrasonic - [https://files.seeedstudio.com/wiki/Grove_Ultrasonic_Ranger/V2.jpg](https://files.seeedstudio.com/wiki/Grove_Ultrasonic_Ranger/V2.jpg)
+<li> Grove BMI088 gyroscope - [https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg](https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg)
+<li> LiPo battery - [https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg](https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg)
+<li> Pixy cam 2.1 - [https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg](https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg)
+<li> Linear voltage regulator [https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg](https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg)
 
 <br>
 
