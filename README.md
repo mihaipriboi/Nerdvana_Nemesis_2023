@@ -1,13 +1,14 @@
 # Nerdvana_Nemesis_2023
 
-### Team: Mihai Priboi, Antonia Onisoru, Teodor Balan
+### Team: Mihai Priboi, Antonia Onișoru, Teodor Bălan
   ![Team](./images/team_image.jpg)
 
 ## Our video of the robot on [Youtube](https://youtu.be/QVi7v2j4KB4)
 
 <br>
 
-## Photos our robot Paula V2 (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate robot V2)
+## Photos of our robot Paula Mia (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate **M**inimum **I**ntelligence **A**ugmentation)
+
 | <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
 | :--: | :--: | 
 | *Front* | *Back* |
