@@ -575,7 +575,7 @@ First, we define the pins we need.
 #define AIN2 8
 ```
 
-After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-10)_ in _motor_stop_, in order to stop the robot moving.
+After the we've defined the pins, we had to make the motors move. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-10)_ in _motor_stop_, in order to stop the robot moving.
 
 ```ino
 void motor_start(int speed) {
@@ -599,13 +599,13 @@ void motor_stop() {
 }
 ```
 
-If for the motor we didn't import a library for it, for the encoder we had to. The library we are using is named _Encoder.h_. 
+If we didn't import a library for the motor, for the encoder we had to. The library we are using is named _Encoder.h_. 
 
 ```ino
 #include <Encoder.h>
 ```
 
-As earlier, the first step is to define the pins we are going to use for the component.
+Like earlier, the first step is to define the pins we are going to use for the component.
 
 ```ino
 // Motor Encoder
@@ -620,7 +620,7 @@ Compared to the motor, we need to initialize the encoder.
 Encoder myEnc(ENCODER_PIN1, ENCODER_PIN2);
 ```
 
-The ecoder has only one function, and lucky for us is quite easy to understand it and code it. The constan, with which we are deviding the value the encoder returns us, was calculated by testing of diffrent lengths, so we are transforming the reading of the ecoder in cm.
+The encoder has only one function, and lucky for us it is quite easy to understand it and code it. The constant, with which we are dividing the value that the encoder has returned us, was calculated by testing of different lengths, so we are transforming the reading of the encoder in cm.
 
 ```ino
 long read_motor_encoder() {
@@ -655,7 +655,7 @@ void servo_setup() {
 }
 ```
 
-And the last step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
+And the second step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
 
 ```ino
 /// Servo functions
@@ -750,8 +750,7 @@ const byte port_lidar_motor_pwm = 2;
 const byte buff_start_express_scan[] = {0xA5, 0x82, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22};
 const byte buff_reset[] = {0xA5, 0x40};
 ```
-
-The setup of the lidar is a series of different functions, so we will take step to step. First we need to give speed to the motor which is rotating the lidar. Then we need to set the data transfer rate between the teensy and sensor, and after this we are resetting the lidar. Like we mentioned above the reset is made by sending the lidar a buffer that contains the command of restart. When we finished restarting the lidar we are reading until the Serial1 is available. And finally we can start the express scan and reading the description, we are doing this by sending a buffer with the commands.
+The setup of the lidar is a series of different functions, so we'll take it step by step. First we need to give speed to the motor which is rotating the lidar. Then we need to set the data transfer rate between the teensy and sensor, and after this we are resetting the lidar. Like we mentioned above the reset is made by sending the lidar a buffer that contains the command of restart. When we finish restarting the lidar we are reading until the Serial1 is unavailable. And finally we can start the express scan and reading the description, we are doing this by sending a buffer with the commands.
 
 ```ino
 // Restarting lidar
@@ -866,7 +865,7 @@ In the setup, we calculate the drift of the gyro, so we can correct for it later
 ```ino
 // Gyro sensor
 double gyro_last_read_time = 0;
-double drifts_x = 0, drifts_y = 0, drifts_z = 0;
+double drifts_x = 0;
 
 /// Gyro functions
 
@@ -882,14 +881,14 @@ void accel_drdy()
 
 void gyro_setup(bool debug) {
   int status = accel.begin();
-  status = accel.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);
+  status = accel.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);// we a setting the frequency at which we are reading data 
   status = accel.pinModeInt1(Bmi088Accel::PUSH_PULL,Bmi088Accel::ACTIVE_HIGH);
   status = accel.mapDrdyInt1(true);
 
 
   status = gyro.begin();
 
-  status = gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);
+  status = gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);// we a setting the frequency at which we are reading data 
   status = gyro.pinModeInt3(Bmi088Gyro::PUSH_PULL,Bmi088Gyro::ACTIVE_HIGH);
   status = gyro.mapDrdyInt3(true);
 
@@ -899,15 +898,12 @@ void gyro_setup(bool debug) {
 
   if(status < 0) {
     if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
-    //init_error = init_gyro_error = true;
   }
   else  {
     // Gyro drift calculation
     if(debug) Serial.println("Starting gyro drift calculation...");
 
     gx = 0;
-    gy = 0;
-    gz = 0;
 
     gyro_last_read_time = millis();
 
@@ -916,48 +912,44 @@ void gyro_setup(bool debug) {
       gyro.readSensor();  
       double read_time = millis();
       gx += (gyro.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
-      // gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
-      // gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
 
       gyro_last_read_time = read_time;
     }
 
     drifts_x = gx / DRIFT_TEST_TIME;
-    // drifts_y = gy / DRIFT_TEST_TIME;
-    // drifts_z = gz / DRIFT_TEST_TIME;
 
     if(debug) Serial.print("Drift test done!\nx: ");
     if(debug) Serial.print(drifts_x, 6);
-    if(debug) Serial.print("   y: ");
-    if(debug) Serial.print(drifts_y, 6);
-    if(debug) Serial.print("   z: ");
-    if(debug) Serial.println(drifts_z, 6);
   }
   // Gyro value reset
   gx = 0;
-  gy = 0;
-  gz = 0;
 
   gyro_last_read_time = millis();
 }
 ```
 
-In the _void loop_ we are reading the data from the gyro, and we are correcting for the drift. As the gyro is giving us the data in radians, we need to convert it to degrees. Also, we are correcting the sign of the data, because the gyro is giving us the data in the opposite direction we need it.
+In the _read_gyro_ we are reading the data from the gyro, and we are correcting for the drift. As the gyro is giving us the data in radians, we need to convert it to degrees. Also, we need only the x-axis rotation of the robot, that's why we are only calculating gx.
 
 ```ino
-/// Gyro
-#ifdef USE_GYRO
-bmi.readSensor();
-double read_time = millis();
+void read_gyro(bool debug) {
+  if(gyro_flag) {
+    gyro_flag = false;
+    cnt1++;
+    gyro.readSensor();   
+    double read_time = millis();
 
-gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+    gx += ((gyro.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
 
-gyro_last_read_time = read_time;
+    gyro_last_read_time = read_time;
 
-if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
-#endif // USE_GYRO
+    if(debug) Serial << "Gyro: gx: " << gx;
+
+    if(debug) {
+      Serial.print("Gyro: gx: ");
+      Serial.print(gx);
+    }
+  }
+}
 ```
 
 ## SD Card <a class="anchor" id="sd-card-code"></a>
@@ -976,7 +968,7 @@ To use the SD Card we defined the pin we are using.
 #define chipSelect BUILTIN_SDCARD
 ```
 
-For writing data in a file on the SD card we made two functions. The function named _file_print_ is writig the date without a newline character in the file, unlike the function _file_println_. Both of them have a parameter of type _String_, which is the data that we are writing in the file. 
+For writing data in a file on the SD card we made multiple functions. The function named _file_print_ is writig the date without a newline character in the file, unlike the function _file_println_. Both of them have a parameter of type _String_, which is the data that we are writing in the file. 
 
 ```ino
 /// SD card
@@ -997,63 +989,7 @@ void file_println(String s) {
 }
 ```
 
-## Display <a class="anchor" id="display-code"></a>
-
-Even though, we are storing the data on the SD Card, we also have a display, so we can check things in real time.
-
-First we initialized the display.
-
-```ino
-// Display
-U8G2_SSD1306_128X64_ALT0_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
-```
-To write on the display we made four funtions. As you can see all of the four functions have the same name, because the parameters we are sending to the functions are of diffrent types, which is called function overloading and a .ino feature used to to improve the readability of the code.
-
-```ino
-/// Display functions
-
-void display_print(const char *s) {
-  #ifdef USE_DISPLAY
-  u8g2.clearBuffer();
-  u8g2.drawStr(30, 20, s);
-  u8g2.sendBuffer();
-  #endif // USE_DISPLAY
-}
-
-void display_print(const char *s1, const char *s2) {
-  #ifdef USE_DISPLAY
-  u8g2.clearBuffer();
-  u8g2.drawStr(30, 15, s1);
-  u8g2.drawStr(30, 25, s2);
-  u8g2.sendBuffer();
-  #endif // USE_DISPLAY
-}
-
-void display_print(const double n, const char *sufix = "") {
-  #ifdef USE_DISPLAY
-  char s[100];
-  itoa(n, s, 10);
-  strcat(s, sufix);
-
-  u8g2.clearBuffer();
-  u8g2.drawStr(30, 20, s);
-  u8g2.sendBuffer();
-  #endif // USE_DISPLAY
-}
-
-void display_print(const double a, const double b) {
-  #ifdef USE_DISPLAY
-  char s1[100], s2[100];
-  itoa(a, s1, 10);
-  itoa(b, s2, 10);
-
-  u8g2.clearBuffer();
-  u8g2.drawStr(30, 15, s1);
-  u8g2.drawStr(30, 25, s2);
-  u8g2.sendBuffer();
-  #endif // USE_DISPLAY
-}
-```
+For the SD card we also have a function called _writeSD_ that we are currently using. The principle of the function is simple. We have a data string to which we keep adding data, and at the end of the function we are printing it on the SD card.
 
 Also in both the qualifing round and final round we have to setup all our components, and we did it like below:
 
@@ -1061,309 +997,28 @@ Also in both the qualifing round and final round we have to setup all our compon
 void setup() {
   Serial.begin(115200);
 
+  servo_setup();
 
-  // if serial is not available
-  while (!Serial && (millis() < 2000));
+  SD_setup();
+  camera_setup(true); ///we setup the camera only for the run program
 
-  if (Serial) debug = true;
-  debug = false;
+  gyro_setup(true);
+  Serial.println("Finished Gyro");
 
-  /// Led
-  #ifdef USE_LED
-  pinMode(LED_PIN, OUTPUT);
-  led_state = HIGH;
-  digitalWrite(LED_PIN, led_state);
-  #endif  // USE_LED
+  lidarSetup();
 
-  /// Display
-  #ifdef USE_DISPLAY
-  u8g2.begin();
-  u8g2.setFont(u8g2_font_ncenB08_tr);
-  display_print("Starting...");
-  #endif  // USE_DISPLAY
+  Serial.println("Finised seting up the lidar");
 
-  /// Camera
-  #ifdef USE_CAMERA
-  if (debug) Serial.println(F("Cameras starting..."));
-  display_print("Left cam err!");
-  pixy_left.init(0x54);
-  display_print("Right cam err!");
-  pixy_right.init(0x55);
-  display_print("Cameras ok!");
-  if (debug) Serial.println(F("Cameras ok!"));
-  #endif  // USE_CAMERA
+  motor_driver_setup();
 
-  /// Motor driver
-  #ifdef USE_MOTOR_DRIVER
-  pinMode(PWM1, OUTPUT);
-  pinMode(AIN1, OUTPUT);
-  pinMode(AIN2, OUTPUT);
-  #endif  // USE_MOTOR_DRIVER
-
-  /// Servo
-  #ifdef USE_SERVO
-  servo.attach(SERVO_PIN, 1200, 1800);
-  move_servo(0);
-  #endif  // USE_SERVO
-
-  /// Wire
-  Wire.begin();
-
-  /// Gyro sensor
-  #ifdef USE_GYRO
-  int status = bmi.begin();
-  bmi.setOdr(Bmi088::ODR_400HZ);
-  bmi.setRange(Bmi088::ACCEL_RANGE_6G, Bmi088::GYRO_RANGE_500DPS);
-  if (status < 0) {
-    if (debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
-    init_error = init_gyro_error = true;
-  } else {
-    // Gyro drift calculation
-    if (debug) Serial.println("Starting gyro drift calculation...");
-    display_print("Starting gyro", "drift test...");
-
-    gx = 0;
-    gy = 0;
-    gz = 0;
-
-    gyro_last_read_time = millis();
-
-    double start_time = millis();
-    while (millis() - start_time < DRIFT_TEST_TIME * 1000) {
-      bmi.readSensor();
-      double read_time = millis();
-
-      gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
-      gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
-      gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
-
-      gyro_last_read_time = read_time;
-    }
-
-    drifts_x = gx / DRIFT_TEST_TIME;
-    drifts_y = gy / DRIFT_TEST_TIME;
-    drifts_z = gz / DRIFT_TEST_TIME;
-
-    if (debug) Serial.print("Drift test done!\nx: ");
-    if (debug) Serial.print(drifts_x, 6);
-    if (debug) Serial.print("   y: ");
-    if (debug) Serial.print(drifts_y, 6);
-    if (debug) Serial.print("   z: ");
-    if (debug) Serial.println(drifts_z, 6);
-  }
-  // Gyro value reset
-  gx = 0;
-  gy = 0;
-  gz = 0;
-
-  gyro_last_read_time = millis();
-  #endif  // USE_GYRO
-
-
-  #ifdef USE_SD
-  if (!SD.begin(chipSelect)) {
-    Serial.println("Card failed, or not present!");
-    init_sd_error = true;
-  } else {
-    Serial.println("Card present!");
-
-    // SD.remove("datalog.txt");
-
-    int i = 0;
-    do {
-      char aux[100];
-      itoa(i, aux, 10);
-
-      memset(sd_filename, 0, sizeof(sd_filename));
-
-      strcat(sd_filename, "datalog_Official_");
-      strcat(sd_filename, aux);
-      strcat(sd_filename, ".csv");
-
-      i++;
-    } while (SD.exists(sd_filename));
-
-    if (debug) Serial.print("Using filename: ");
-    if (debug) Serial.println(sd_filename);
-
-
-    String aux;
-
-    if (!init_error) aux = "ok!";
-    else aux = "error!";
-    data_string = "init: ," + aux + "\n";
-
-    if (!init_sensors_error) aux = "ok!";
-    else aux = "error!";
-    data_string += "dist s: ," + aux + "\n";
-
-    if (!init_gyro_error) aux = "ok!";
-    else aux = "error!";
-    data_string += "gyro: ," + aux + "\n";
-
-    data_string += "drift: ," + String(drifts_z, 6) + "\n";
-
-    file_println(data_string);
-  }
-  #endif  // USE_SD
-
-
-  /// Program start
-  if (!init_error) {
-    digitalWrite(LED_PIN, LOW);
-    display_print("Ready!");
-  } else {
-    if (init_sensors_error && init_gyro_error)
-      display_print("Dist sensors err!", "Gyro err!");
-    else if (init_sensors_error)
-      display_print("Dist sensors err!");
-    else if (init_gyro_error)
-      display_print("Gyro err!");
+  double start_lidar_time = millis();
+  
+  while(millis() - start_lidar_time < 1000) {
+    lidarRead();
+    read_gyro(false);
   }
 
-  #ifdef USE_BUTTON
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  delay(10);
-
-  Serial.println(digitalRead(BUTTON_PIN));
-  while (digitalRead(BUTTON_PIN) == 1) {
-    Serial.println(digitalRead(BUTTON_PIN));
-    delay(50);
-  }
-  #endif
-
-
-  loop_start_time = millis();
-}
-```
-
-And in the final round code we have a function called _allSensors_, in which we are reading all the sensors we have, and we are writing the data in the file and on the display.
-
-```ino
-void all_Sensors() {
-  /// Print loop iteration
-  if (millis() - loop_last_time > 1000) {
-    loop_freq = loop_temp_iteration * 1000 / (millis() - loop_last_time);
-    loop_temp_iteration = 0;
-    loop_last_time = millis();
-  }
-
-  loop_iteration++;
-  loop_temp_iteration++;
-
-  if (debug) Serial << "Iteration: #" << loop_iteration << " - " << millis() / 1000
-                    << "." << millis() % 1000 << "s - " << loop_freq << "hz\n";
-
-  /// Motor encoder
-  #ifdef USE_MOTOR_ENCODER
-    if (debug) Serial << "Encoder: " << read_motor_encoder() << "\n";
-
-    if (millis() - last_time_motor_speed >= motor_speed_interval) {
-      double current_motor_encoder = (double)myEnc.read() / 47.74;
-      speedX = (current_motor_encoder - last_motor_encoder) * (1000.0 / motor_speed_interval); 
-      last_time_motor_speed = millis();
-      last_motor_encoder = current_motor_encoder;
-    } 
-
-    Serial.print("Speed:");
-    Serial.println(speedX);
-
-
-  #ifdef USE_MOTOR_SAFETY
-    if (millis() - last_safety_time > safety_timeout) {
-      if (abs(current_motor_speed) > 0 && abs(read_motor_encoder() - last_motor_enc) < 1) {
-        file_println("Safety stop: ," + String(read_motor_encoder()) + ", " + String(last_motor_enc));
-        motor_start(0);
-        display_print("Box Box!");
-        delay(999999999);
-      }
-
-      last_safety_time = millis();
-      last_motor_enc = read_motor_encoder();
-    }
-    if (current_motor_speed == 0)
-      last_safety_time = millis();
-
-  #endif  // USE_MOTOR_SAFETY
-
-  #endif  // USE_MOTOR_ENCODER
-
-  /// Camera
-  #ifdef USE_CAMERA
-    if (millis() - camera_last_fps >= camera_fps) {
-      process_cameras();
-
-      camera_last_fps = millis();
-    }
-  #endif  // USE_CAMERA
-
-
-  /// Distance sensors
-  #ifdef USE_DISTANCE_SENSORS
-    if (millis() - last_time_front_sensor >= 50) {
-      front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
-      last_time_front_sensor = millis();
-    }
-
-    if (millis() - last_time_left_sensor >= 50) {
-      left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
-      last_time_left_sensor = millis();
-    }
-
-    if (millis() - last_time_right_sensor >= 50) {
-      right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
-      last_time_right_sensor = millis();
-    }
-
-    if (debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: "
-                      << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
-  #endif  // USE_DISTANCE_SENSORS
-
-
-  /// Gyro
-  #ifdef USE_GYRO
-    bmi.readSensor();
-    double read_time = millis();
-
-    // speedX += (bmi.getAccelX_mss() * (read_time - gyro_last_read_time) * 0.001);
-    // Serial.println("Speed");
-    // Serial.println(speedX);
-
-    gx += ((bmi.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-    gy += ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-    gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
-
-    gyro_last_read_time = read_time;
-
-    if (debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
-  #endif  // USE_GYRO
-
-
-  /// Led blink
-  #ifdef USE_LED
-    if (millis() - led_previous_time >= led_interval) {
-      led_previous_time = millis();
-
-      if (led_state == LOW) {
-        led_state = HIGH;
-      } else {
-        led_state = LOW;
-      }
-
-      digitalWrite(LED_PIN, led_state);
-    }
-  #endif  // USE_LED
-
-
-  /// Display
-  #ifdef USE_DISPLAY
-    if (millis() - display_last_print_time > display_print_interval) {
-      // display_print(current_side, " side");
-      display_print((millis() - loop_start_time) / 1000, (millis() - loop_start_time) % 1000);
-      // display_print(left_sensor_cm, right_sensor_cm);
-      display_last_print_time = millis();
-    }
-  #endif  // USE_DISPLAY
+  motor_start(motor_speed);
 }
 ```
 
