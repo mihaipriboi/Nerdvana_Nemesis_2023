@@ -97,19 +97,23 @@ First, we have the RLIDAR A1 sensor, which takes a lot of space. It's size expla
 
 Meanwhile, the gyro 3D printed piece is as small and simple as the sensor. The design of this piece allows us to connect the sensor with just a couple of black lego pins.
 
-And this concludes the sensors. 
+And this concludes the sensors, that our robot has. All that we need to make the robot functinal is a microcontroller, a battery and a camera.
 
+We will start with the microcontroller. We used a teensy and a PCB to create our circuit. The teensy is connected to the PCB, so this way the PCB and the teensy are like one component together. We placed them at the back of the robot, and we designed a 3D piece to attach them to the body. In order to fix the PCB and teensy to the 3D part we used crews, and to connect to the body we used black lego pins. You can see the design below.
 
-In the case of the servor motor, because it has a diffrent shape than the DC motor, we've made a completely diffrent piece. Also we've put the servo motor in the front of the robot, with its axel facing the ground.
+The battery, as the RLIDAR A1 sensor, is quite heavy, so we tried to place it as close to the middle of the robot as possible. For it we also designed another piece as you can see in the skech. What is special about this piece is that we made a special space so we can put its cable, so the construction is neat and compact.
 
-![MG996 support lego - 3D Model](./images/resources/servo_MG996R.png "MG996 support lego")
-
+Now the final component is the camera. Its a important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic componemts we used screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
 
 <br>
 
 ## Electrical Components <a class="anchor" id="electrical-components"></a>
 
-As for the electrical components, we've used a servo motor (MG996R) for steering and a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). As we metioned before we used 3D printed parts, designed by us, to connect the motors to the the contruction made of lego pieces. 
+Our robot electrical components are the motors (the DC motor and the servo motor), a motor driver, the PCB board and teensy 4.1 board, a RLIDAR A1M8 sensor, the BMI008 gyro sensor, the battery and the PixyCam 2.1.
+
+We will start with the motors. For the steering we are using a servo motor, respectively MG996R servo motor. And to make the robot move we are using a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). They are attached to the body directly without using 3D parts or lego pieces.
+
+The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).
 
 ### Servo Motor <a class="anchor" id="servo-motor"></a>
 ![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
