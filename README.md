@@ -124,22 +124,23 @@ Now the final component is the camera. Its a important component for the robot, 
 
 Two of the most important electrical components of your robot are the motors. For the steering we are using a servo motor, respectively MG996R servo motor. And to make the robot move we are using a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). They are attached to the body directly without using 3D parts or lego pieces.
 
-The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).For the cables of the encoder of the DC motor we connected them directly to the teensy board (they are on PIN4 and PIN5).
-
 ### Drive Motor <a class="anchor" id="drive-motor"></a>
 ![DC Motor](./images/resources/drive_motor.jpg "DC Motor")
 
-To control the velocity of the DC motor we used a motor driver from SparkFun (Dual TB6612FNG). The PWMA of the driver is connected to PIN7 of the teensy board, also AI2 and AI1 of the driver are connected to PIN4, respectively PIN5. 
+The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).For the cables of the encoder of the DC motor we connected them directly to the teensy board (they are on PIN4 and PIN5).
 
 ### Motor Driver <a class="anchor" id="motor-driver"></a>
 ![Motor driver](./images/resources/motor_driver.png "Motor driver")
 
-For the steering part, the servo is essentially. The servo is MG996R servo motor. It has a 180 rotate angle and enough torque (the servo torque is 9kg/cm for 4.8V and 11 kg/cm for 6V). Like the DC motor, the MG996R is connected to the power and ground line, and PIN10 (this pin helps us change the rotating direction) of the teensy.
+To control the velocity of the DC motor we used a motor driver from SparkFun (Dual TB6612FNG). The PWMA of the driver is connected to PIN7 of the teensy board, also AI2 and AI1 of the driver are connected to PIN4, respectively PIN5. 
 
 ### Servo Motor <a class="anchor" id="servo-motor"></a>
 ![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
-# Power and Sense Management <a class="anchor" id="power-and-sense-management"></a
+For the steering part, the servo is essentially. The servo is MG996R servo motor. It has a 180 rotate angle and enough torque (the servo torque is 9kg/cm for 4.8V and 11 kg/cm for 6V). Like the DC motor, the MG996R is connected to the power and ground line, and PIN10 (this pin helps us change the rotating direction) of the teensy.
+
+
+# Power and Sense Management <a class="anchor" id="power-and-sense-management"></a>
 
 Last year we've made a robot that used Raspberry Pi, but also Arduino. After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
@@ -150,7 +151,8 @@ Why did we choose this board, you may ask. Well, we wanted to have as more speci
 
 So this year our work was much easier, because we didn't have problems, such as trying to connect the Raspberry Pi to the Arduino board, which made our sensors reading slower (we had to send the readings to the Raspberry Pi and make the Arduino wait for the Raspberry to procces it). Now we could procces the readings of the sensors on the same board, which made our data more accurate.
 
-There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+### RPLIDAR A1 <a class="anchor" id="lidar"></a>
+![lidar](./images/resources/lidar_sensor.jpg " RPLIDAR A1")
 
 Regarding the distance sensor, it is a long story. At first, after the international we thought that using a lidar (VL53L0X) sensor for measuring distances was a great idea, but it turned out that it wasn't. Because the VL53L0X sensor is using a laser to measure the distances, the color of the object that the laser reaches influences the data that the sensor is reading. We discovered this by testing, by observing that, because the walls are black, the data that we were reading with the sensor was not accurate if the distance from the lidar to the walls was bigger than 70cm, which isn't the result we wanted. 
 
@@ -159,33 +161,31 @@ After this, we searched so much more and found out that we can gain precision by
 So how is RPLIDAR A1 working? RPLIDAR is based on laser triangulation ranging principle, and it measures distance data in more than 2000 times per second with high resolution distance output (<1% of the distance).
 The sensor emits modulated infrared laser signal, the laser signal is then reflected by the object to be detected. The returning signal is sampled by vision acquisition system in RPLIDAR A1 and the DSP embedded in RPLIDAR A1 starts processing the sample data and output distance value and angle value between object and RPLIDAR A1.
 
-### Lidar sensor <a class="anchor" id="lidar-sensor"></a>
-![Lidar sensor VL53L0X)](./images/resources/VL53L0X.png "Lidar sensor VL53L0X)")
-
-Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensor we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones.
+To connect the scanner to the teensy we have seven cables. Three for controlling the motor, which is rotating the sensor, and the other 4 are for powering the lidar and reading data. The pins for reading data are PIN0 and PIN1, and the PWM pin for the motor is PIN2.
 
 ### Gyro sensor (BMI088) <a class="anchor" id="gyro-sensor-(BMI088)"></a>
 ![Gyro sensor (BMI088)](./images/resources/gyro.jpg "Gyro sensor (BMI088)")
 
-As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
+Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensors we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones. The gyro is wired to a SDA and SCL pin on the teensy (the SDA pin is PIN18 and the SCL pin is PIN19 on the board). Also we have two more pins, the INT1 and INT2 pins (interrupt pins) that are connected to PIN14, respectively PIN15 to the board.
 
 ### Li-Po Battery <a class="anchor" id="li-po-battery"></a>
 ![Li-Po Battery](./images/resources/battery.png "Li-Po Battery")
+
+As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
+
+### PixyCam 2.1 <a class="anchor" id="pixy-cam-2.1"></a>
+![PixyCam 2.1](./images/resources/pixy.png "PixyCam 2.1")
 
 One of our biggest drawbacks last year was the speed of the camera readings. We were using a Raspberry Pi with the PiCam V2. Mainly because we had to do the cube recognition machine learning algorithm and procces it on the Raspberry Pi, the fps of the proccesed images was pretty low, about 15. This also cost the other readings on the Raspberry Pi to slow down.
 
 Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
 
-### PixyCam 2.1 <a class="anchor" id="pixy-cam-2.1"></a>
-![PixyCam 2.1](./images/resources/pixy.png "PixyCam 2.1")
+### Voltage regulator <a class="anchor" id="voltage-regulator"></a>
+![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
 In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
 
 Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
-
-### Voltage regulator <a class="anchor" id="voltage-regulator"></a>
-
-![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
 ### Circuit diagram <a class="anchor" id="circuit-diagram"></a>
 ![Circuit diagram](./images/resources/circuit.png "Circuit diagram")
