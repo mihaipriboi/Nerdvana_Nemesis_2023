@@ -109,22 +109,22 @@ Now the final component is the camera. Its a important component for the robot, 
 
 ## Electrical Components <a class="anchor" id="electrical-components"></a>
 
-Our robot electrical components are the motors (the DC motor and the servo motor), a motor driver, the PCB board and teensy 4.1 board, a RLIDAR A1M8 sensor, the BMI008 gyro sensor, the battery and the PixyCam 2.1.
+Two of the most important electrical components of your robot are the motors. For the steering we are using a servo motor, respectively MG996R servo motor. And to make the robot move we are using a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). They are attached to the body directly without using 3D parts or lego pieces.
 
-We will start with the motors. For the steering we are using a servo motor, respectively MG996R servo motor. And to make the robot move we are using a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). They are attached to the body directly without using 3D parts or lego pieces.
-
-The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).
-
-### Servo Motor <a class="anchor" id="servo-motor"></a>
-![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
+The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).For the cables of the encoder of the DC motor we connected them directly to the teensy board (they are on PIN4 and PIN5).
 
 ### Drive Motor <a class="anchor" id="drive-motor"></a>
 ![DC Motor](./images/resources/drive_motor.jpg "DC Motor")
 
-To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
+To control the velocity of the DC motor we used a motor driver from SparkFun (Dual TB6612FNG). The PWMA of the driver is connected to PIN7 of the teensy board, also AI2 and AI1 of the driver are connected to PIN4, respectively PIN5. 
 
 ### Motor Driver <a class="anchor" id="motor-driver"></a>
 ![Motor driver](./images/resources/motor_driver.png "Motor driver")
+
+For the steering part, the servo is essentially. The servo is MG996R servo motor. It has a 180 rotate angle and enough torque (the servo torque is 9kg/cm for 4.8V and 11 kg/cm for 6V). Like the DC motor, the MG996R is connected to the power and ground line, and PIN10 (this pin helps us change the rotating direction) of the teensy.
+
+### Servo Motor <a class="anchor" id="servo-motor"></a>
+![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
 # Power and Sense Management <a class="anchor" id="power-and-sense-management"></a
 
@@ -137,7 +137,7 @@ Why did we choose this board, you may ask. Well, we wanted to have as more speci
 
 So this year our work was much easier, because we didn't have problems, such as trying to connect the Raspberry Pi to the Arduino board, which made our sensors reading slower (we had to send the readings to the Raspberry Pi and make the Arduino wait for the Raspberry to procces it). Now we could procces the readings of the sensors on the same board, which made our data more accurate.
 
- There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
 
 Regarding the distance sensor, it is a long story. At first, after the international we thought that using a lidar (VL53L0X) sensor for measuring distances was a great idea, but it turned out that it wasn't. Because the VL53L0X sensor is using a laser to measure the distances, the color of the object that the laser reaches influences the data that the sensor is reading. We discovered this by testing, by observing that, because the walls are black, the data that we were reading with the sensor was not accurate if the distance from the lidar to the walls was bigger than 70cm, which isn't the result we wanted. 
 
