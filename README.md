@@ -74,25 +74,31 @@ We've tried different steering mechanisms like the _Ackermann steering_ or the _
 
 As we said, we've designed 3D printed parts to connect the electronic components to the lego structure of the steering. Therefore, our construction includes a big chassis (as the body), made by use with the help of a 3D printer, to which the motors and sensors are attached to by screws or their own custom 3D printed piece.
 
-To the chassis, or the body the servo, the steering system and the differential are directly attached. The servo is attached to the body by using screws. The steering system and differential are connected by using lego pieces.
+To the chassis, or the body the servo, the DC motor, the steering system and the differential are directly attached. The servo and the motor are attached to the body by using screws. The motor is placed at the very back of the robot and the servo is at the front. The steering system and differential are connected by using lego pieces.
 
 In the sketch you can see the dimensions of the chassis of your robot.
+
+### Chassis <a class="anchor" id="drivetrain-mechanical"></a>
+![Chassis/Body - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
 
 In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego gears), we did this by designing a 3D piece that does this. You can see the specification of it below.
 
 ### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
 ![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
 
-For the servo motor, to connect its axle to the drivetrain, we've made 2 diffrent pieces that convert the axel of the motor to a lego axel.
+For the servo motor, to connect its axle to the drivetrain, so again we've made 2 different pieces that convert the axle of the motor to a lego axle, as you can see in the drawing below.
 
 ### Steering <a class="anchor" id="steering-mechanical"></a>
 ![MG996 to axle - 3D Model](./images/resources/MG996R_to_axle.png "MG996 to axle")
 
-Now, we had to attach the motors to our drivetrain, so that we can have a stady contruction without components hanging only in their cables.
+Now that we finished with the components attached directlly to the chassis, we still need to connect the other components in order to make the robot move.
 
-Therefore, the pierce below is used to connnect the DC motor to the lego structure and we've placed it at the back of the robot.
+First, we have the RLIDAR A1 sensor, which takes a lot of space. It's size explains its weight. Being one of your heavier components we tried to place it at the center of your robot so we can have a balance construction. To connect the sensor to the body we came up with a quite simple idea. We use 4 pieces identical with the one shown in the drawing below. These 3D pieces are designed to me attached with screws to the lidar and with black lego pins to the body. Is such a simple solution for this big, heavy and complicated sensor.
 
-![Gearmotor support lego - 3D Model](./images/resources/GM25_GEARMOTOR_Support_lego.png "Gearmotor support lego")
+Meanwhile, the gyro 3D printed piece is as small and simple as the sensor. The design of this piece allows us to connect the sensor with just a couple of black lego pins.
+
+And this concludes the sensors. 
+
 
 In the case of the servor motor, because it has a diffrent shape than the DC motor, we've made a completely diffrent piece. Also we've put the servo motor in the front of the robot, with its axel facing the ground.
 
