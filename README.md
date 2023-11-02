@@ -115,8 +115,8 @@ The battery, as the RLIDAR A1 sensor, is quite heavy, so we tried to place it as
 
 Now the final component is the camera. Its a important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic componemts we used screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
 
-### Battery Support <a class="anchor" id="steering-mechanical"></a>
-![Camera Support - 3D Model](./images/resources/CameraSupport.png "Camera Support")
+### Camera Support <a class="anchor" id="steering-mechanical"></a>
+![Camera Support - 3D Model](./images/resources/CameraSupport.jpg "Camera Support")
 
 <br>
 
