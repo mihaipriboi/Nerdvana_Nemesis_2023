@@ -74,17 +74,20 @@ We've tried different steering mechanisms like the _Ackermann steering_ or the _
 
 As we said, we've designed 3D printed parts to connect the electronic components to the lego structure of the steering. Therefore, our construction includes a big chassis (as the body), made by use with the help of a 3D printer, to which the motors and sensors are attached to by screws or their own custom 3D printed piece.
 
-To the chassis, or the body the servo, the DC motor, the steering system and the differential are directly attached. The servo and the motor are attached to the body by using screws. The motor is placed at the very back of the robot and the servo is at the front. The steering system and differential are connected by using lego pieces.
+### Chassis <a class="anchor" id="drivetrain-mechanical"></a>
+![Chassis/Body - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
+
+To the chassis, or the body the servo, the DC motor, the gyro sensor, the steering system and the differential are directly attached. The servo and the motor are attached to the body by using screws. The motor is placed at the very back of the robot and the servo is at the front. The steering system and differential are connected by using lego pieces.
 
 In the sketch you can see the dimensions of the chassis of your robot.
 
-### Chassis <a class="anchor" id="drivetrain-mechanical"></a>
-![Chassis/Body - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
+### Chassis drawing <a class="anchor" id="drivetrain-mechanical"></a>
+![Chassis/Body - 3D Model](./images/resources/robot2023fe.jpg "Powertrain - 3D Model")
 
 In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego gears), we did this by designing a 3D piece that does this. You can see the specification of it below.
 
 ### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
-![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
+![Gearmotor to axle - 3D Model](./images/resources/MotorToAxle.png "Gearmotor to axle 3D piece")
 
 For the servo motor, to connect its axle to the drivetrain, so again we've made 2 different pieces that convert the axle of the motor to a lego axle, as you can see in the drawing below.
 
@@ -95,15 +98,25 @@ Now that we finished with the components attached directlly to the chassis, we s
 
 First, we have the RLIDAR A1 sensor, which takes a lot of space. It's size explains its weight. Being one of your heavier components we tried to place it at the center of your robot so we can have a balance construction. To connect the sensor to the body we came up with a quite simple idea. We use 4 pieces identical with the one shown in the drawing below. These 3D pieces are designed to me attached with screws to the lidar and with black lego pins to the body. Is such a simple solution for this big, heavy and complicated sensor.
 
-Meanwhile, the gyro 3D printed piece is as small and simple as the sensor. The design of this piece allows us to connect the sensor with just a couple of black lego pins.
+### RLIDAR Support <a class="anchor" id="steering-mechanical"></a>
+![RLIDAR Support - 3D Model](./images/resources/lidar_support.png "RLIDAR support")
 
 And this concludes the sensors, that our robot has. All that we need to make the robot functinal is a microcontroller, a battery and a camera.
 
-We will start with the microcontroller. We used a teensy and a PCB to create our circuit. The teensy is connected to the PCB, so this way the PCB and the teensy are like one component together. We placed them at the back of the robot, and we designed a 3D piece to attach them to the body. In order to fix the PCB and teensy to the 3D part we used crews, and to connect to the body we used black lego pins. You can see the design below.
+We will start with the microcontroller. We used a teensy and a PCB to create our circuit. The teensy is connected to the PCB, so this way the PCB and the teensy are like one component together. We placed them at the back of the robot, and we designed a 3D piece to attach them to the body. In order to fix the PCB and teensy to the 3D part we used screws, and to connect to the body we used black lego pins. You can see the design below.
+
+### PCB Support <a class="anchor" id="steering-mechanical"></a>
+![PCB Support - 3D Model](./images/resources/PCB_support.png "PCB Support")
 
 The battery, as the RLIDAR A1 sensor, is quite heavy, so we tried to place it as close to the middle of the robot as possible. For it we also designed another piece as you can see in the skech. What is special about this piece is that we made a special space so we can put its cable, so the construction is neat and compact.
 
+### Battery Support <a class="anchor" id="steering-mechanical"></a>
+![Battery Support - 3D Model](./images/resources/BatterySupport.png "Battery Support")
+
 Now the final component is the camera. Its a important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic componemts we used screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
+
+### Battery Support <a class="anchor" id="steering-mechanical"></a>
+![Camera Support - 3D Model](./images/resources/CameraSupport.png "Camera Support")
 
 <br>
 
