@@ -113,7 +113,7 @@ The battery, as the RLIDAR A1 sensor, is quite heavy, so we tried to place it as
 ### Battery Support <a class="anchor" id="steering-mechanical"></a>
 ![Battery Support - 3D Model](./images/resources/BatterySupport.jpg "Battery Support")
 
-Now the final component is the camera. Its a important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic componemts we used screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
+Now the final component is the camera. It's an important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic components we use screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
 
 ### Camera Support <a class="anchor" id="steering-mechanical"></a>
 ![Camera Support - 3D Model](./images/resources/CameraSupport.jpg "Camera Support")
@@ -569,18 +569,17 @@ We didn't need to include a specific library to control the motor driver, beacau
 First, we define the pins we need.
 
 ```ino
-// Motor driver
+/// Motor pins
 #define PWM1 7
 #define AIN1 9
 #define AIN2 8
 ```
 
-After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-1)_ in _motor_stop_, before setting the current motor speed to 0, in order to stop the robot moving.
+After the we've defined the pins, we had to make the motors. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-10)_ in _motor_stop_, in order to stop the robot moving.
 
 ```ino
 void motor_start(int speed) {
-  current_motor_speed = speed;
-  
+  speed = -speed;  
   int out = abs(speed) * 2.55; // Convert speed to PWM value (0 to 255)
   if(speed >= 0) { // Forward direction
     digitalWrite(AIN1, HIGH);
@@ -591,11 +590,12 @@ void motor_start(int speed) {
     digitalWrite(AIN2, HIGH);
   }
   analogWrite(PWM1, out);
+
+  Serial << "speed: " << speed << "\n";
 }
 
 void motor_stop() {
-  motor_start(-1); 
-  current_motor_speed = 0;
+  motor_start(-10); 
 }
 ```
 
@@ -624,7 +624,7 @@ The ecoder has only one function, and lucky for us is quite easy to understand i
 
 ```ino
 long read_motor_encoder() {
-  return (double)myEnc.read() / 47.74;
+  return (0.01285) * (double)myEnc.read();
 }
 ```
 
@@ -636,19 +636,23 @@ The last component we needed to program in order for the robot to move and steer
 #include <Servo.h> 
 ```
 
-The first step is to define the pin, and we also observed that we could't quite center the wheels on the 0 position of the servo, so we defined a servo corection angle to combat this.
+The first step is to define the pin, initialize the servo and set it up.
 
 ```ino
 // Servo 
-#define SERVO_PIN 6
-#define SERVO_ANGLE_CORECTION 5
-```
-
-Then, we initialized the servo.
-
-```ino
-// Servo
+#define SERVO_PIN 10
 Servo servo;
+
+void servo_setup() {
+  #ifdef QUALI
+  servo.attach(SERVO_PIN, 1400, 1611);
+  #else
+  servo.attach(SERVO_PIN, 1400, 1611);
+  #endif // QUALI
+
+  move_servo(0);
+  delay(50);
+}
 ```
 
 And the last step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
@@ -657,9 +661,9 @@ And the last step, is the function, in which we make the servo to rotate a speci
 /// Servo functions
 
 void move_servo(double angle) {
-  angle = -clamp(angle, -1, 1);
+  angle = clamp(angle + servo_correction, -1, 1);
 
-  double angle_deg = 90 + angle * 90.0 + servo_corrections; // Convert angle to degrees (0 to 180)
+  double angle_deg = 90 + angle * 90.0;  // Convert angle to degrees (0 to 180)
   angle_deg = clamp(angle_deg, 0, 180);
   servo.write(angle_deg);
 }
@@ -667,17 +671,36 @@ void move_servo(double angle) {
 
 ## Camera <a class="anchor" id="camera-code"></a>
 
-Now that we finished to implement the functions we need to make the robot move andd steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
+Now that we finished to implement the functions we need to make the robot move and steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
 
 ```ino 
 #include <Pixy2I2C.h>
 ```
 
-We need to initialize the camera. There are no pins, as we have a I2C connection. The I2C address must be configured in the _Pixy2I2C.h_ library.
+We need to initialize the camera. There are no pins, as we have a I2C connection. The I2C address must be configured in the _Pixy2I2C.h_ library. We also need to set up the camera.
 
 ```ino
 // Camera
 Pixy2I2C pixy;
+
+#define LINE -1000
+const int sig_to_col[] = { 0, 1, -1, LINE, LINE };  // 0 - none, -1 - green, 1 - red
+
+bool sees_line;
+
+int image_w, image_h;
+
+void camera_setup(bool debug) {
+  if (debug) Serial.println(F("Cameras starting..."));
+  //display_print("Cam err!");
+  pixy.init(0x54);
+  if (debug) Serial.println(F("Cameras ok!"));
+
+  pixy.getResolution();
+  image_w = pixy.frameWidth;
+  image_h = pixy.frameHeight;
+  // Serial << image_w << " " << image_h << '\n';
+}
 ```
 
 In order to read the inputs from the camera, we have some methods from the Pixy2I2C class.
@@ -698,110 +721,126 @@ pixy.ccc.blocks[i].m_indez
 // The tracking index of the block
 ```
 
-For the camera we made a function in which we determine if we have a cube we need to avoid, and its color. In order to take a cube in considertion, the area needs to be greater or equal to a constant we determine experimentally.
+For the camera we made a function in which we are reading the color of the cube in front of us.
 
 ```ino
-void signature_to_cube_color(double current_angle, int current_side) {
-  cube_color = 0;
+void read_camera(bool debug) {
+  if (millis() - last_camera_read >= camera_interval) {
+    pixy.ccc.getBlocks();
 
-  if(pixy.ccc.numBlocks >= 1) {
-    cub_index = pixy.ccc.blocks[0].m_index;
-    if(current_side == 0) {
-      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > 250) {
-        if(pixy.ccc.blocks[0].m_x > 40 && pixy.ccc.blocks[0].m_x < 240) {
-          if(pixy.ccc.blocks[0].m_signature == 1)
-            cube_color = 1;
-          else if(pixy.ccc.blocks[0].m_signature == 2)
-            cube_color = -1;
-        } 
-      }
-    } else if(current_side == -1) {
-      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > min_area_cube) {
-        if(pixy.ccc.blocks[0].m_x > 80) {
-          if(pixy.ccc.blocks[0].m_signature == 1)
-            cube_color = 1;
-          else if(pixy.ccc.blocks[0].m_signature == 2)
-            cube_color = -1;
-        }
-      }
-    } else if(current_side == 1) {
-      if(pixy.ccc.blocks[0].m_width * pixy.ccc.blocks[0].m_height > min_area_cube) {
-        if(pixy.ccc.blocks[0].m_x < 80) {
-          if(pixy.ccc.blocks[0].m_signature == 1)
-            cube_color = 1;
-          else if(pixy.ccc.blocks[0].m_signature == 2)
-            cube_color = -1;
-        }
-      }
-    }
+    if(pixy.ccc.numBlocks < 1)
+      cube_color = 0;
+    else
+      cube_color = sig_to_col[pixy.ccc.blocks[0].m_signature];
 
-    if(cube_color == 0) {
-      if(pixy.ccc.blocks[0].m_signature == 1)
-        cube_corner_color = 1;
-      else if(pixy.ccc.blocks[0].m_signature == 2)
-        cube_corner_color = -1;
-
-      cube_corner_side = current_side;
-    }
-    else 
-      cube_corner_color = 0;
-      cube_corner_side = 0;
+    last_camera_read = millis();
   }
 }
 ```
 
-## Ultrasonic Sensors <a class="anchor" id="ultrasonic-sensors-code"></a>
+## RLIDAR A1M8 Sensors <a class="anchor" id="RLIDAR-A1M8-sensors-code"></a>
 
-For mesuring distances we are using ultrasound sensors, using the library _Ultrasonic.h_.
+For measuring distances and mapping the walls and cubes we are using the lidar sensor. We don't have a library that we used, we received the data and processed it by ourselves. To do that we had to send the lidar what data we want to send us, by defining vectors with the codes (each action has an unique code for exemple 0xA5, 0x40 for restart) to do that.
 
 ```ino
-#include "Ultrasonic.h"
+#define lidarSendBuff(buff) Serial1.write(buff, sizeof(buff))
+
+const byte port_lidar_motor_pwm = 2;
+
+const byte buff_start_express_scan[] = {0xA5, 0x82, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22};
+const byte buff_reset[] = {0xA5, 0x40};
 ```
 
-For each sensor we defined one pin.
+The setup of the lidar is a series of different functions, so we will take step to step. First we need to give speed to the motor which is rotating the lidar. Then we need to set the data transfer rate between the teensy and sensor, and after this we are resetting the lidar. Like we mentioned above the reset is made by sending the lidar a buffer that contains the command of restart. When we finished restarting the lidar we are reading until the Serial1 is available. And finally we can start the express scan and reading the description, we are doing this by sending a buffer with the commands.
 
 ```ino
-#define FRONT_SENSOR_PIN 2
-#define LEFT_SENSOR_PIN 1
-#define RIGHT_SENSOR_PIN 0
+// Restarting lidar
+void lidarReset() {
+    lidarSendBuff(buff_reset);
+}
+
+// Starting express scanning
+void lidarStartExpressScan() {
+    lidarSendBuff(buff_start_express_scan);
+}
+
+// Reading the lidar response
+void lidarReadDescription() {
+    for (int i = 0; i < 7; ++i) {
+        long lastTime = millis();
+        Serial.println(i);
+        while (!Serial1.available()) {};
+        Serial1.read();
+    }
+    
+    Serial.println("done");
+}
+
+// Setting the lidar motor speed
+void lidarMotorWrite(int speed_motor) {
+    analogWrite(port_lidar_motor_pwm, speed_motor); 
+}
+
+// Initializing lidar
+void lidarSetup() {
+    lidarMotorWrite(255);
+    delay(100);
+    Serial1.begin(115200);
+    lidarReset();
+    delay(1000);
+    while (Serial1.available()) {
+        Serial1.read();
+    }
+    lidarStartExpressScan();
+    lidarReadDescription();
+}
 ```
 
-And after that we initilized them, like below.
+The next step is to read the data from the lidar. We need to store the data, for that we are using _lidar_buff_ vector. We are reading byte by byte the data and storing it in the vector as we read it.
 
 ```ino
-// Distance sensors
-Ultrasonic ultrasonic_front(FRONT_SENSOR_PIN);
-Ultrasonic ultrasonic_left(LEFT_SENSOR_PIN);
-Ultrasonic ultrasonic_right(RIGHT_SENSOR_PIN);
-```
+// Reading information from lidar
+byte lidar_buff[84];
+byte lidar_old_buff[84];
 
-We are reading the sensor data in the _void loop_, with a delay of 50ms between readings (for each sensor separately).
+int lidar_buff_ptr = 0;
 
-```ino
-#ifdef USE_DISTANCE_SENSORS
-if(millis() - last_time_front_sensor >= 50) {
-  front_sensor_cm = ultrasonic_front.MeasureInCentimeters();
-  last_time_front_sensor = millis();
-} 
+void lidarRead() {
+    if (!Serial1.available()) {
+        return;
+    }
+    byte current_byte = Serial1.read();
+    //Serial.println("Current byte: ");
+    //Serial.println(current_byte);
+    if (lidar_buff_ptr == 0) {
+        if ((current_byte >> 4) != 0xA) {
+            return;
+        }
+    } else if (lidar_buff_ptr == 1) {
+        if ((current_byte >> 4) == 0xA) {
+            lidar_buff_ptr = 0;
+        } else if ((current_byte >> 4) != 0x5) {
+            lidar_buff_ptr = 0;
+            return;
+        }
+    }
 
-if(millis() - last_time_left_sensor >= 50) {
-  left_sensor_cm = ultrasonic_left.MeasureInCentimeters();
-  last_time_left_sensor = millis();
-} 
+    lidar_buff[lidar_buff_ptr++] = current_byte;
 
-if(millis() - last_time_right_sensor >= 50) {
-  right_sensor_cm = ultrasonic_right.MeasureInCentimeters();
-  last_time_right_sensor = millis();
-} 
+    if (lidar_buff_ptr == 4) {
+        lidarProcessingData();
+    }
 
-if(debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: " 
-        << front_sensor_cm << "cm   right: " << right_sensor_cm << "cm\n";
-#endif // USE_DISTANCE_SENSORS
+    if (lidar_buff_ptr == 84) {
+        memcpy(lidar_old_buff, lidar_buff, 84);
+        lidar_buff_ptr = 0;
+    }
+}
 ```
 
 ## Gyro Sensor <a class="anchor" id="gyro-sensor-code"></a>
 
-We also have a gyroscope to help with driving straight and taking turns. The library we are using for it is _"BMI088.h"_.
+We also have a gyroscope to help with driving straight and following a trajectory. For the gyro sensor it was needed to import a library, _BMI088.h_.
 
 ```ino
 #include "BMI088.h"
@@ -816,61 +855,91 @@ We defined a constant - the period of time in which we are calculating the drift
 We had to initilized it first, the parameters are: the I2C port, the address of the sensor, and the address of the accelerometer.
 
 ```ino
+
 // Gyro sensor
-Bmi088 bmi(Wire, 0x19, 0x69);
+Bmi088Gyro gyro(Wire,0x69);
+Bmi088Accel accel(Wire,0x19);
 ```
 
 In the setup, we calculate the drift of the gyro, so we can correct for it later.
 
 ```ino
-#ifdef USE_GYRO
-int status = bmi.begin();
-bmi.setOdr(Bmi088::ODR_400HZ);
-bmi.setRange(Bmi088::ACCEL_RANGE_6G,Bmi088::GYRO_RANGE_500DPS);
-if(status < 0) {
-  if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
-  init_error = init_gyro_error = true;
-}
-else  {
-  // Gyro drift calculation
-  if(debug) Serial.println("Starting gyro drift calculation...");
+// Gyro sensor
+double gyro_last_read_time = 0;
+double drifts_x = 0, drifts_y = 0, drifts_z = 0;
 
+/// Gyro functions
+
+void gyro_drdy()
+{
+  gyro_flag = true;
+}
+
+void accel_drdy()
+{
+  accel_flag = true;
+}
+
+void gyro_setup(bool debug) {
+  int status = accel.begin();
+  status = accel.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);
+  status = accel.pinModeInt1(Bmi088Accel::PUSH_PULL,Bmi088Accel::ACTIVE_HIGH);
+  status = accel.mapDrdyInt1(true);
+
+
+  status = gyro.begin();
+
+  status = gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);
+  status = gyro.pinModeInt3(Bmi088Gyro::PUSH_PULL,Bmi088Gyro::ACTIVE_HIGH);
+  status = gyro.mapDrdyInt3(true);
+
+  pinMode(15,INPUT);
+  attachInterrupt(15,gyro_drdy,RISING);  
+
+
+  if(status < 0) {
+    if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
+    //init_error = init_gyro_error = true;
+  }
+  else  {
+    // Gyro drift calculation
+    if(debug) Serial.println("Starting gyro drift calculation...");
+
+    gx = 0;
+    gy = 0;
+    gz = 0;
+
+    gyro_last_read_time = millis();
+
+    double start_time = millis();
+    while(millis() - start_time < DRIFT_TEST_TIME * 1000) {
+      gyro.readSensor();  
+      double read_time = millis();
+      gx += (gyro.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
+      // gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
+      // gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
+
+      gyro_last_read_time = read_time;
+    }
+
+    drifts_x = gx / DRIFT_TEST_TIME;
+    // drifts_y = gy / DRIFT_TEST_TIME;
+    // drifts_z = gz / DRIFT_TEST_TIME;
+
+    if(debug) Serial.print("Drift test done!\nx: ");
+    if(debug) Serial.print(drifts_x, 6);
+    if(debug) Serial.print("   y: ");
+    if(debug) Serial.print(drifts_y, 6);
+    if(debug) Serial.print("   z: ");
+    if(debug) Serial.println(drifts_z, 6);
+  }
+  // Gyro value reset
   gx = 0;
   gy = 0;
   gz = 0;
 
   gyro_last_read_time = millis();
-
-  double start_time = millis();
-  while(millis() - start_time < DRIFT_TEST_TIME * 1000) {
-    bmi.readSensor();
-    double read_time = millis();
-
-    gx += (bmi.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
-    gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
-    gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
-
-    gyro_last_read_time = read_time;
-  }
-
-  drifts_x = gx / DRIFT_TEST_TIME;
-  drifts_y = gy / DRIFT_TEST_TIME;
-  drifts_z = gz / DRIFT_TEST_TIME;
-
-  if(debug) Serial.print("Drift test done!\nx: ");
-  if(debug) Serial.print(drifts_x, 6);
-  if(debug) Serial.print("   y: ");
-  if(debug) Serial.print(drifts_y, 6);
-  if(debug) Serial.print("   z: ");
-  if(debug) Serial.println(drifts_z, 6);
 }
-// Gyro value reset
-gx = 0;
-gy = 0;
-gz = 0;
-
-gyro_last_read_time = millis();
-#endif // USE_GYRO
 ```
 
 In the _void loop_ we are reading the data from the gyro, and we are correcting for the drift. As the gyro is giving us the data in radians, we need to convert it to degrees. Also, we are correcting the sign of the data, because the gyro is giving us the data in the opposite direction we need it.
