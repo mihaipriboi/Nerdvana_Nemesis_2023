@@ -89,7 +89,7 @@ In order to be able to move the wheels we needed to transform the axle of the mo
 For the servo motor, to connect its axle to the drivetrain, so again we've made 2 different pieces that convert the axle of the motor to a lego axle, as you can see in the drawing below.
 
 ### Steering <a class="anchor" id="steering-mechanical"></a>
-![Servo arm - 3D Model](./images/resources/ServoArm.pdf "Servo arm")
+![Servo arm - 3D Model](./images/resources/ServoArm.png "Servo arm")
 
 Now that we finished with the components attached directlly to the chassis, we still need to connect the other components in order to make the robot move.
 
