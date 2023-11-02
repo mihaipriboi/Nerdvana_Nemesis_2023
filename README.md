@@ -78,7 +78,7 @@ To the chassis, or the body the servo, the steering system and the differential 
 
 In the sketch you can see the dimensions of the chassis of your robot.
 
-In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego wheels), we did this by designing a 3D piece that does this. You can see the specification of it below.
+In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego gears), we did this by designing a 3D piece that does this. You can see the specification of it below.
 
 ### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
 ![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
