@@ -72,14 +72,18 @@ We've tried different steering mechanisms like the _Ackermann steering_ or the _
 
 ![Powertrain - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
 
-As we said, we've designed 3D printed parts to connnect the electronic components to the lego structure.
+As we said, we've designed 3D printed parts to connect the electronic components to the lego structure of the steering. Therefore, our construction includes a big chassis (as the body), made by use with the help of a 3D printer, to which the motors and sensors are attached to by screws or their own custom 3D printed piece.
 
-First of all, for the DC motor we've made a tiny piece that links its axle to a normal lego axle.
+To the chassis, or the body the servo, the steering system and the differential are directly attached. The servo is attached to the body by using screws. The steering system and differential are connected by using lego pieces.
+
+In the sketch you can see the dimensions of the chassis of your robot.
+
+In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego wheels), we did this by designing a 3D piece that does this. You can see the specification of it below.
 
 ### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
 ![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
 
-For the servo motor, to connect its axle to the drivetrain, we've made another piece to comvert its axle to a lego one.
+For the servo motor, to connect its axle to the drivetrain, we've made 2 diffrent pieces that convert the axel of the motor to a lego axel.
 
 ### Steering <a class="anchor" id="steering-mechanical"></a>
 ![MG996 to axle - 3D Model](./images/resources/MG996R_to_axle.png "MG996 to axle")
@@ -114,7 +118,7 @@ To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG
 
 # Power and Sense Management <a class="anchor" id="power-and-sense-management"></a
 
-Last year we've made a robot that used Raspberry Pi, but also Arduino.After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
+Last year we've made a robot that used Raspberry Pi, but also Arduino. After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
 ### Teensy 4.1 <a class="anchor" id="teensy-4.1"></a>
 ![Teensy 4.1](./images/resources/teensy.jpg " Teensy 4.1")
@@ -123,16 +127,17 @@ Why did we choose this board, you may ask. Well, we wanted to have as more speci
 
 So this year our work was much easier, because we didn't have problems, such as trying to connect the Raspberry Pi to the Arduino board, which made our sensors reading slower (we had to send the readings to the Raspberry Pi and make the Arduino wait for the Raspberry to procces it). Now we could procces the readings of the sensors on the same board, which made our data more accurate.
 
-Regarding the distance sensor, it is a long story. At first, after the international we've thought that using a lidar (VL53L0X) sensor for mesuring distances was a great idea, but it turned out that it wasn't so great. There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+ There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
+
+Regarding the distance sensor, it is a long story. At first, after the international we thought that using a lidar (VL53L0X) sensor for measuring distances was a great idea, but it turned out that it wasn't. Because the VL53L0X sensor is using a laser to measure the distances, the color of the object that the laser reaches influences the data that the sensor is reading. We discovered this by testing, by observing that, because the walls are black, the data that we were reading with the sensor was not accurate if the distance from the lidar to the walls was bigger than 70cm, which isn't the result we wanted. 
+
+After this, we searched so much more and found out that we can gain precision by using a RPLIDAR A1, specifically RPLIDAR A1M8, which is a 360 degree 2D laser scanner (LIDAR). Why is this sensor better than VL53L0X, you may ask. Well the first big difference between the two is the data that we can process. The RPLIDAR A1 is constantly rotating and measuring the distances in all directions. Meanwhile the VL53L0X sensor could measure the distance in a single direction. So this way with the RPLIDAR A1 we could map and determine the walls positions, cubes positions and the robot position at any time we want. Another difference between the sensors is the precision. The RPLIDAR A1 is more precise than the VL53L0X.
+
+So how is RPLIDAR A1 working? RPLIDAR is based on laser triangulation ranging principle, and it measures distance data in more than 2000 times per second with high resolution distance output (<1% of the distance).
+The sensor emits modulated infrared laser signal, the laser signal is then reflected by the object to be detected. The returning signal is sampled by vision acquisition system in RPLIDAR A1 and the DSP embedded in RPLIDAR A1 starts processing the sample data and output distance value and angle value between object and RPLIDAR A1.
 
 ### Lidar sensor <a class="anchor" id="lidar-sensor"></a>
 ![Lidar sensor VL53L0X)](./images/resources/VL53L0X.png "Lidar sensor VL53L0X)")
-
-After we've realised we need to find another solution, we've decided to go back to our long friends: the ultrasonic sensors. And we can say that this year they are more reliable. They are giving us more accurate reading, because we've incressed the frequency that we are reading with and we are processinng the data much faste. The model that we are using is
-grove ultrasonic distance sensor (HC-SR04). We have one on each side (right and left) and one in the front of the robot.
-
-### Ultrasonic sensor (HC-SR04) <a class="anchor" id="ultrasonic-sensor-(HC-SR04)"></a>
-![Ultrasonic sensor (HC-SR04)](./images/resources/ultrasonic.png "Ultrasonic sensor (HC-SR04)")
 
 Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensor we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones.
 
