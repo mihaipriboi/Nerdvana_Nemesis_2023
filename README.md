@@ -1,13 +1,46 @@
-# Nerdvana_Nemesis_2023
+<center><h1> Nerdvana Nemesis 2023 </center>
 
-### Team: Mihai Priboi, Antonia Onișoru, Teodor Bălan
+## Table of Contents
+* [Photos](#team-image)
+  * [Team](#team-image)
+  * [Robot](#robot-image)
+* [Performance Video](#video)
+* [Mobility Management](#mobility-management)
+  * [Mechanical Components](#mechanical-components)
+    * [All-wheel drive](#all-wheel-drive)
+    * [Drivetrain](#drivetrain-mechanical)
+    * [Steering](#steering-mechanical)
+  * [Electrical Components](#electrical-components)
+    * [Servo Motor](#servo-motor)
+    * [Drive Motor](#drive-motor)
+    * [Motor Driver](#motor-driver)
+* [Power and Sense Management](#power-and-sense-management)
+  * [Teensy 4.1](#teensy-4.1)
+  * [Lidar sensor](#lidar-sensor)
+  * [Ultrasonic sensor (HC-SR04)](#ultrasonic-sensor-(HC-SR04))
+  * [Gyro Sensor](#gyro-sensor-(BMI088))
+  * [Li-Po Battery](#li-po-battery)
+  * [PixyCam 2.1](#pixy-cam-2.1)
+  * [Voltage regulator](#voltage-regulator-(L7805CV))
+  * [Circuit diagram](#circuit-diagram)
+* [Obstacle Management](#obstacle-management)
+* [Code for each component](#code-for-each-component)
+  * [Drive Motor](#drive-motor-code)
+  * [Servo Motor](#servo-motor-code)
+  * [Camera](#camera-code)
+  * [UltraSonic Sensor](#ultrasonic-sensor-code)
+  * [Gyro Sensor](#gyro-sensor-code)
+  * [SD Card](#sd-card-code)
+  * [Display](#display-code)
+* [Resources](#resources)
+  * [3D Models](#3d-models-resources)
+  * [Images](#images-resources)
+  * [Copyright](#copyright)
+
+### Team: Priboi Mihai, Onișoru Antonia, Bălan Teodor <a class="anchor" id="team-image"></a>
   ![Team](./images/team_image.jpg)
 
-## Our video of the robot on [Youtube](https://youtu.be/QVi7v2j4KB4)
-
-<br>
-
-## Photos of our robot Paula Mia (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate **M**inimum **I**ntelligence **A**ugmentation)
+## Photos of our robot Paula Mia (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate **M**inimum **I**ntelligence **A**ugmentation) <a class="anchor" id="robot-image"></a>
 
 | <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
 | :--: | :--: | 
@@ -19,11 +52,15 @@
 
 <br>
 
-# Mobility Management
+## Our video of the robot on [Youtube](https://youtu.be/QVi7v2j4KB4) <a class="anchor" id="video"></a>
+
+<br>
+
+# Mobility Management <a class="anchor" id="mobility-management"></a>
 ![Powertrain - 3D Model](./images/resources/powertrain.png "Powertrain - 3D Model")
 
-## Mechanical components
-After our experience from last year's edition, where we used a back-wheel drive with a differential, we decided to go with a AWD system. We chose this system because the BWD had a hard time steering as there is no power on the steering wheels. Also, an AWD system assure a more stable power distribution.
+## Mechanical components <a class="anchor" id="mechanical-components"></a>
+After our experience from last year's edition, where we used a back-wheel drive with a differential, this year, at the national, we decided to go with a AWD system. We chose this system because the BWD has a harder time steering as there is no power on the steering wheels. Also, an AWD system assure a more stable power distribution.
 
 Our drivetrain is constructed using Lego Technic pieces and 3D printed pieces to connect the electrical components with the Lego.
 
@@ -31,7 +68,7 @@ The main components of the drivetrain, as you can see in the picture in _all-whe
 
 We've tried different steering mechanisms like the _Ackermann steering_ or the _Bell-crank steering_. Because of their complexity, we came to the conclusion that it is better for us to use a simpler one, as it can be contructed with fewer pieces and it is smaller.
 
-### All-wheel drive
+### All-wheel drive <a class="anchor" id="all-wheel-drive"></a>
 
 ![Powertrain - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
 
@@ -39,12 +76,12 @@ As we said, we've designed 3D printed parts to connnect the electronic component
 
 First of all, for the DC motor we've made a tiny piece that links its axle to a normal lego axle.
 
-### Gearmotor to axle 
+### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
 ![Gearmotor to axle - 3D Model](./images/resources/mini_gearmotor_to_axle.png "Gearmotor to axle 3D piece")
 
 For the servo motor, to connect its axle to the drivetrain, we've made another piece to comvert its axle to a lego one.
 
-### MG996 to axle
+### Steering <a class="anchor" id="steering-mechanical"></a>
 ![MG996 to axle - 3D Model](./images/resources/MG996R_to_axle.png "MG996 to axle")
 
 Now, we had to attach the motors to our drivetrain, so that we can have a stady contruction without components hanging only in their cables.
@@ -60,24 +97,26 @@ In the case of the servor motor, because it has a diffrent shape than the DC mot
 
 <br>
 
-## Electrical components
+## Electrical Components <a class="anchor" id="electrical-components"></a>
 
 As for the electrical components, we've used a servo motor (MG996R) for steering and a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). As we metioned before we used 3D printed parts, designed by us, to connect the motors to the the contruction made of lego pieces. 
-### Servo motor
+
+### Servo Motor <a class="anchor" id="servo-motor"></a>
 ![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
-### Drive motor
+### Drive Motor <a class="anchor" id="drive-motor"></a>
 ![DC Motor](./images/resources/drive_motor.jpg "DC Motor")
 
 To control the DC motor, we've used a motor driver from SparkFun (Dual TB6612FNG).
-### Motor Driver
+
+### Motor Driver <a class="anchor" id="motor-driver"></a>
 ![Motor driver](./images/resources/motor_driver.png "Motor driver")
 
-# Power and Sense Management
+# Power and Sense Management <a class="anchor" id="power-and-sense-management"></a
 
 Last year we've made a robot that used Raspberry Pi, but also Arduino.After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
 
-### Teensy 4.1
+### Teensy 4.1 <a class="anchor" id="teensy-4.1"></a>
 ![Teensy 4.1](./images/resources/teensy.jpg " Teensy 4.1")
 
 Why did we choose this board, you may ask. Well, we wanted to have as more special pins (example IC2 and interrupt pins) and is much faster in comparison to the arduino, the teensy having a 600 MHz frequency and a flash memory of 8 Mbytes, while an Arduino Every (this arduino board we've used last year) has a 20MHz freqency and a flash memory of 48 KB.
@@ -86,45 +125,46 @@ So this year our work was much easier, because we didn't have problems, such as 
 
 Regarding the distance sensor, it is a long story. At first, after the international we've thought that using a lidar (VL53L0X) sensor for mesuring distances was a great idea, but it turned out that it wasn't so great. There is a problem with them. The lidar sensor is using a laser, not sounds waves, to mesure the ditances so the color of the object the laser reaches can influence the data that the sensor is reading. In conclusion, because the fences of our map are black, which makes a big amount of the light to be absorbed, we coudn't mesure more than 70cm accurately, which isn't the result we've wanted. 
 
-### Lidar sensor
+### Lidar sensor <a class="anchor" id="lidar-sensor"></a>
 ![Lidar sensor VL53L0X)](./images/resources/VL53L0X.png "Lidar sensor VL53L0X)")
 
 After we've realised we need to find another solution, we've decided to go back to our long friends: the ultrasonic sensors. And we can say that this year they are more reliable. They are giving us more accurate reading, because we've incressed the frequency that we are reading with and we are processinng the data much faste. The model that we are using is
 grove ultrasonic distance sensor (HC-SR04). We have one on each side (right and left) and one in the front of the robot.
 
-### Ultrasonic sensor (HC-SR04)
+### Ultrasonic sensor (HC-SR04) <a class="anchor" id="ultrasonic-sensor-(HC-SR04)"></a>
 ![Ultrasonic sensor (HC-SR04)](./images/resources/ultrasonic.png "Ultrasonic sensor (HC-SR04)")
 
 Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensor we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones.
 
-### Gyro sensor (BMI088)
+### Gyro sensor (BMI088) <a class="anchor" id="gyro-sensor-(BMI088)"></a>
 ![Gyro sensor (BMI088)](./images/resources/gyro.jpg "Gyro sensor (BMI088)")
 
 As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
 
-### Li-Po Battery
+### Li-Po Battery <a class="anchor" id="li-po-battery"></a>
 ![Li-Po Battery](./images/resources/battery.png "Li-Po Battery")
 
 One of our biggest drawbacks last year was the speed of the camera readings. We were using a Raspberry Pi with the PiCam V2. Mainly because we had to do the cube recognition machine learning algorithm and procces it on the Raspberry Pi, the fps of the proccesed images was pretty low, about 15. This also cost the other readings on the Raspberry Pi to slow down.
 
 Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
 
-### Pixy cam 2.1
-![Pixy cam 2.1](./images/resources/pixy.png "Pixy cam 2.1")
+### PixyCam 2.1 <a class="anchor" id="pixy-cam-2.1"></a>
+![PixyCam 2.1](./images/resources/pixy.png "PixyCam 2.1")
 
 In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
 
 Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
 
-### Voltage regulator (L7805CV)
+### Voltage regulator <a class="anchor" id="voltage-regulator"></a>
+
 ![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
-### Circuit diagram
+### Circuit diagram <a class="anchor" id="circuit-diagram"></a>
 ![Circuit diagram](./images/resources/circuit.png "Circuit diagram")
 
 <br>
 
-# Obstacle Management
+# Obstacle Management <a class="anchor" id="obstacle-management"></a>
 
 Now we needed to put everything we've made so far to test. And the best test is the qualifing round. Our qualifing strategy is quite simple. We are using a PID controller based on the gyro to keep the robot moving streight and to make it turn to the next side. Also we are using the ultrasonic sensors, placed on the left and right side of the robot, to determine the direction i which the robot needs to move. Because one of the ultrasonic sensors placed on the sides are going to read a distance greater than 100cm before we need to make a turn, we can use this to decide the direction the robot needs to move.
 
@@ -492,9 +532,9 @@ In conclusion, as we can see, our strategy is based on the idea of avoiding the 
 
 <br>
 
-# Code for each component
+# Code for each component <a class="anchor" id="code-for-each-component"></a>
 
-## Drive Motor
+## Drive Motor <a class="anchor" id="drive-motor-code"></a>
 
 We didn't need to include a specific library to control the motor driver, beacause arduino (and Teensy) have inbuilt functions for this. 
 
@@ -560,7 +600,7 @@ long read_motor_encoder() {
 }
 ```
 
-## Servo Motor
+## Servo Motor <a class="anchor" id="servo-motor-code"></a>
 
 The last component we needed to program in order for the robot to move and steer is the servo motor. The library we used is _Servo.h_.
 
@@ -597,7 +637,7 @@ void move_servo(double angle) {
 }
 ```
 
-## Camera
+## Camera <a class="anchor" id="camera-code"></a>
 
 Now that we finished to implement the functions we need to make the robot move andd steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
 
@@ -682,7 +722,7 @@ void signature_to_cube_color(double current_angle, int current_side) {
 }
 ```
 
-## Ultrasonic Sensors
+## Ultrasonic Sensors <a class="anchor" id="ultrasonic-sensors-code"></a>
 
 For mesuring distances we are using ultrasound sensors, using the library _Ultrasonic.h_.
 
@@ -731,7 +771,7 @@ if(debug) Serial << "Distance:   left: " << left_sensor_cm << "cm   front: "
 #endif // USE_DISTANCE_SENSORS
 ```
 
-## Gyroscope
+## Gyro Sensor <a class="anchor" id="gyro-sensor-code"></a>
 
 We also have a gyroscope to help with driving straight and taking turns. The library we are using for it is _"BMI088.h"_.
 
@@ -823,7 +863,7 @@ if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz <
 #endif // USE_GYRO
 ```
 
-## Sd Card
+## SD Card <a class="anchor" id="sd-card-code"></a>
 
 Because we are using Teensy 4.1, which is a board similar to arduino, we can't see the data the robot is reading in real time, but still need to know what the robot is reading. So we found a solution, which is quite simple. We log everything the robot is reading on a SD, because the Teensy has a port for SD cards, which is perfect in this situation. The libraries we used for this is _SD.h_ and _SPI.h_.
 
@@ -860,7 +900,7 @@ void file_println(String s) {
 }
 ```
 
-## Display
+## Display <a class="anchor" id="display-code"></a>
 
 Even though, we are storing the data on the SD Card, we also have a display, so we can check things in real time.
 
@@ -1234,27 +1274,27 @@ void all_Sensors() {
 
 ![Robot animation](./images/resources/explosion.gif "Robot animation")
 
-# Resources
+# Resources <a class="anchor" id="resources"></a>
 
-## 3D Models
+## 3D Models <a class="anchor" id="3d-models-resources"></a>
 <li> Pixy cam 2.1 - https://grabcad.com/library/cmucam-pixy-2-2
 <li> DC motor - https://grabcad.com/library/12v-dc-motor-6
 <li> Servo motor - https://grabcad.com/library/servomotor-mg996r-4
-<li> Battery - https://grabcad.com/library/turnigy-nano-tech-2200mah-4s-25-50c-lipo-battery-pack-1
+<li> Battery - https://grabcad.com/library/2s-7-4v-li-po-battery-1
 <li> Gyro sensor - https://grabcad.com/library/mpu6050-1
 <li> Ultrasonic sensor - https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1
 <li> Display - https://grabcad.com/library/ssd1312-oled-display-0-96-1
 <li> Button - https://grabcad.com/library/button-pcb-12mm-1
 <li> Teensy 4.1 - https://grabcad.com/library/teensy-4-1-2
 <li> Sparkfun motor driver - https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1
-<li> Prototype board - https://grabcad.com/library/pcb-prototype-development-board-6x8-cm-1
+<li> Prototype board - https://grabcad.com/library/pcb-board-prototype-3x7cm-1
 <li> Linear voltage regulator - https://grabcad.com/library/linear-voltage-regulators-78xx-1
 
 <br>
 
-## Images
+## Images <a class="anchor" id="images-resources"></a>
 <li> MG996R Servo motor - https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg
-<li> DC geared motor - https://www.adafruit.com/product/4416
+<li> DC geared motor - https://grabcad.com/library/12v-dc-motor-350rpm-w-encoder-from-dfrobot-1
 <li> Sparkfun motor driver - https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg
 <li> Teensy 4.1 - https://circuitpython.org/assets/images/boards/large/teensy41.jpg
 <li> Vl53l0x lidar - https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg
@@ -1262,15 +1302,16 @@ void all_Sensors() {
 <li> Grove BMI088 gyroscope - https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg
 <li> LiPo battery - https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg
 <li> Pixy cam 2.1 - https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg
-<li> Linear voltage regulator https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg
+<li> Linear voltage regulator - https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg
+<li> RPLIDAR A1 - https://grabcad.com/library/rplidar-a1-holder-1
 
 <br>
 
-## Copyright
+## Copyright <a class="anchor" id="copyright"></a>
 
 Unless explicitly stated otherwise, all rights, including copyright, in the content of these files and images are owned or controlled for these purposes by Nerdvana Romania.
 
-You are not permitted to copy, download, store (in any medium), adapt or change in any way the content of these Nerdvana Romania resources for any other purpose whatsoever without the prior written permission of Nerdvana Romania.
+You may copy, download, store (in any medium), adapt, or modify the content of these Nerdvana Romania resources, provided that you properly attribute the work to Nerdvana Romania.
 
 For any other use of Nerdvana Romania's content, please get in touch with us at office@nerdvana.ro.
 
