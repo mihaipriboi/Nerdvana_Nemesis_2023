@@ -96,10 +96,10 @@ For the servo motor, to connect its axle to the drivetrain, so again we've made 
 
 Now that we finished with the components attached directlly to the chassis, we still need to connect the other components in order to make the robot move.
 
-First, we have the RLIDAR A1 sensor, which takes a lot of space. It's size explains its weight. Being one of your heavier components we tried to place it at the center of your robot so we can have a balance construction. To connect the sensor to the body we came up with a quite simple idea. We use 4 pieces identical with the one shown in the drawing below. These 3D pieces are designed to me attached with screws to the lidar and with black lego pins to the body. Is such a simple solution for this big, heavy and complicated sensor.
+First, we have the RPLIDAR A1 sensor, which takes a lot of space. It's size explains its weight. Being one of your heavier components we tried to place it at the center of your robot so we can have a balance construction. To connect the sensor to the body we came up with a quite simple idea. We use 4 pieces identical with the one shown in the drawing below. These 3D pieces are designed to me attached with screws to the lidar and with black lego pins to the body. Is such a simple solution for this big, heavy and complicated sensor.
 
-### RLIDAR Support <a class="anchor" id="steering-mechanical"></a>
-![RLIDAR Support - 3D Model](./images/resources/lidar_support.jpg "RLIDAR support")
+### RPLIDAR Support <a class="anchor" id="steering-mechanical"></a>
+![RPLIDAR Support - 3D Model](./images/resources/lidar_support.jpg "RPLIDAR support")
 
 And this concludes the sensors, that our robot has. All that we need to make the robot functinal is a microcontroller, a battery and a camera.
 
@@ -108,7 +108,7 @@ We will start with the microcontroller. We used a teensy and a PCB to create our
 ### PCB Support <a class="anchor" id="steering-mechanical"></a>
 ![PCB Support - 3D Model](./images/resources/PCB_support.jpg "PCB Support")
 
-The battery, as the RLIDAR A1 sensor, is quite heavy, so we tried to place it as close to the middle of the robot as possible. For it we also designed another piece as you can see in the skech. What is special about this piece is that we made a special space so we can put its cable, so the construction is neat and compact.
+The battery, as the RPLIDAR A1 sensor, is quite heavy, so we tried to place it as close to the middle of the robot as possible. For it we also designed another piece as you can see in the skech. What is special about this piece is that we made a special space so we can put its cable, so the construction is neat and compact.
 
 ### Battery Support <a class="anchor" id="steering-mechanical"></a>
 ![Battery Support - 3D Model](./images/resources/BatterySupport.jpg "Battery Support")
@@ -867,7 +867,7 @@ void read_camera(bool debug) {
 }
 ```
 
-## RLIDAR A1M8 Sensors <a class="anchor" id="RLIDAR-A1M8-sensors-code"></a>
+## RPLIDAR A1M8 Sensors <a class="anchor" id="RPLIDAR-A1M8-sensors-code"></a>
 
 For measuring distances and mapping the walls and cubes we are using the lidar sensor. We don't have a library that we used, we received the data and processed it by ourselves. To do that we had to send the lidar what data we want to send us, by defining vectors with the codes (each action has an unique code for exemple 0xA5, 0x40 for restart) to do that.
 
