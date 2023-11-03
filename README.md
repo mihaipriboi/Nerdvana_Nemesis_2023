@@ -194,58 +194,400 @@ Because we wanted the robot to be as fast as possible, the motor driver is power
 
 # Obstacle Management <a class="anchor" id="obstacle-management"></a>
 
-Now we needed to put everything we've made so far to test. And the best test is the qualifing round. Our qualifing strategy is quite simple. We are using a PID controller based on the gyro to keep the robot moving streight and to make it turn to the next side. Also we are using the ultrasonic sensors, placed on the left and right side of the robot, to determine the direction i which the robot needs to move. Because one of the ultrasonic sensors placed on the sides are going to read a distance greater than 100cm before we need to make a turn, we can use this to decide the direction the robot needs to move.
+As we mentioned above we utilize the A1M8 360° LiDAR scanner to meticulously measure distances, enabling comprehensive spatial data acquisition. Subsequent data analysis allows us to establish correlations between points, facilitating the construction of detailed representations of the walls and complex geometric entities.
+
+In this research, the A1 LiDAR is interfaced with a Teensy microcontroller via a UART connection, initiating the 'scan_express' mode for rapid data acquisition at a 10Hz frequency across a 360° field. The data is transmitted in 32-point buffers. To ascertain accurate angular measurements, we employ a differential approach, comparing consecutive readings, and implement angle compensation based on the values obtained, thereby enhancing the precision of our measurements.
+
+The LiDAR sensor yields a dataset for each point, comprising both distance (measured in millimeters) and angle (measured in degrees). Our objective is to convert these polar coordinates into Cartesian coordinates (x, y), and subsequently adjust their positioning due to the LiDAR’s inverted orientation, which is designed for spatial efficiency.
+We can do the conversion by using the equations below.
+
+```
+x= -distance * cos(angle) 
+y= -distance * sin(angle)
+```
+
+In which the angle needs to be mesure in radians and the ditances is in mm. You can spot these relations in our function _lidarProcessingData_ writen below.
 
 ```ino
-// We are deciding the direction the robot needs to move only once at the beginning of the round, before the first turn
-if(turn_direction == 0) {
-  if(left_sensor_cm > 100)
-    turn_direction = -1;
-  if(right_sensor_cm > 100)
-    turn_direction = 1;
-
-  if(turn_direction) {
-    read_lidars = false;
-    if(debug) Serial << "Turn direction is: " << turn_direction << "\n";
-  }
+// Getting angle compensation
+double getDiffAngle(byte data_angle) {
+    bool sign = data_angle >> 7;
+    double diff_angle = (double)(data_angle & 0b1111111) / (1 << 3);
+    if (sign) {
+        diff_angle = -diff_angle;
+    }
+    return diff_angle;
 }
 
-// We are reading the ultrasonic front sensor and verify if we need to turn
-if(front_sensor_cm > 0 && front_sensor_cm < distance_to_wall_for_turn) {
-  // If we need to turn we are calculating the angle at which we need to turn
-  if(millis() - last_turn_time > turn_delay) {
-    current_angle += turn_angle * turn_direction;
-    if( turn_direction ==  -1 )
-      current_angle += turn_angle_left * turn_direction;
-    turns++;
-    last_turn_time = millis();
-  }
+double angleDiff(double old_angle, double now_angle) {
+    return old_angle <= now_angle ? now_angle - old_angle : now_angle - old_angle + 360;
 }
 
-if(debug) Serial << "Turns: " << turns << "\n";
+// Processing data from the lidar
+void lidarProcessingData() {
 
-// PID algorithm based on gyro
-pid_error = (gz - current_angle) * kp - (pid_last_error - pid_error) * kd;
+    double start_angle = (((uint16_t)(lidar_buff[3] & 0b01111111) << 8) ^ lidar_buff[2]) / 64.;
+    double old_start_angle = (((uint16_t)(lidar_old_buff[3] & 0b01111111) << 8) ^ lidar_old_buff[2]) / 64.;
+
+    for (int i = 0; i < 16; ++i) {
+        byte* cabin = lidar_old_buff + 5 * i + 4;
+        
+        d0[0] = getDiffAngle(((cabin[0] & 0b11) << 4) ^ (cabin[4] & 0b1111));
+        d0[1] = getDiffAngle(((cabin[2] & 0b11) << 4) ^ (cabin[4] >> 4));
+
+        for (int i = 0; i < 2; ++i) {
+            distance[i] = ((uint16_t)cabin[2 * i + 1] << 6) ^ (cabin[2 * i] >> 2);
+        }
+
+        for (int j = 0; j < 2; ++j) {
+            int k = 2 * i + 1 + j;
+            double angle = old_start_angle + angleDiff(old_start_angle, start_angle) / 32 * k;
+            if (angle >= 360) {
+                angle -= 360;
+            } else if(angle < 0) {
+              angle = angle + 360;
+            }
+
+            double x, y;
+
+            float gx_angle = fmod((double)(angle + (double)gx - current_angle), 360.0);
+
+            y = -distance[j] * cos(radians(gx_angle));
+            x = -distance[j] * sin(radians(gx_angle));
+
+            if(distance[j] > 5 && distance[j] < 4000) {
+              // Serial << x << " " << y << '\n';
+              // Serial << distance[j] << " " << gx_angle << '\n';
+              lidarProcessPoint(Angle(distance[j], gx_angle), Point(x, y));
+            }
+
+        }
+    }
+}
+```
+How do we know it's a wall or a cube you may ask. The task at hand involves identifying adjacent data points, a process that might seem straightforward initially—simply determining the "closeness" of the points. However, the reality is more nuanced. Given the LiDAR's fixed angular resolution, the gap between consecutive points expands with their distance, complicating the identification process.
+
+The elegance of machine learning shines through in our project, where we applied polynomial regression to a dataset. Our goal was to find the right coefficients to correlate the distances of data points, enhancing our understanding of their relationships on a linear path.
+
+```ino
+#define MAX_POINTS 1000
+#define INF 10000
+
+bool wall_updated[WALL_NR] = {1, 1, 1, 1};
+
+double old_ang = 10000;
+double old_dist = 10000;
+
+Point current_line[MAX_POINTS];
+int current_line_size = 0;
+
+double calculate_threshold(double distance) {
+  double a = 0.0010947040728267199;
+  double b = -0.46574727812407213;
+  double c = 56.010728111461475;
+  double points = a * distance * distance + b * distance + c;
+  double threshold = max(7.0, points);  // Ensure threshold is at least 7
+  return threshold;
+}
+
+void calculate_linear_regression_segment(Point& start, Point& end, double& dist, int& dir) {  
+  if(current_line_size < 2) return; // Not enough points for regression
+  
+  double x_start = INFINITY, x_end = -INFINITY;
+  double x_sum = 0, y_sum = 0, x2_sum = 0, xy_sum = 0;
+  for(int i = 0; i < current_line_size; ++i) {
+    x_sum += current_line[i].x;
+    y_sum += current_line[i].y;
+    x2_sum += current_line[i].x * current_line[i].x;
+    xy_sum += current_line[i].x * current_line[i].y;
+
+    if(current_line[i].x < x_start) x_start = current_line[i].x;
+    if(current_line[i].x > x_end) x_end = current_line[i].x;
+  }
+
+  double m, c;
+
+  if(current_line_size * x2_sum - x_sum * x_sum == 0) m = INF;
+  else m = (current_line_size * xy_sum - x_sum * y_sum) / (current_line_size * x2_sum - x_sum * x_sum);
+  
+  c = (y_sum - m * x_sum) / current_line_size;
+
+  start.x = x_start;
+  start.y = m * x_start + c;
+  
+  end.x = x_end;
+  end.y = m * x_end + c;
+
+  dist = abs(c) / sqrt(1 + m * m);
+
+  if(abs(m) < 1) {
+    if((start.y + end.y) / 2 < 0)
+      dir = BACK;
+    else
+      dir = FRONT;
+  } else {
+    if((start.x + end.x) / 2 < 0)  {
+      dir = LEFT; 
+    }
+    else
+      dir = RIGHT;
+  }
+}
+```
+
+We also made a python script to help us visualize the objects that the sensor has identified.
+
+```python
+from cmath import cos
+from math import radians, sin, sqrt
+import math
+import matplotlib.pyplot as plt
+from collections import deque
+import random
+import time
+import numpy as np
+import serial
+
+
+# Arduino setup
+arduino = serial.Serial(port='COM9', baudrate=115200, timeout=.1)
+
+# Create a fixed-length deque of length 50 to store the data points
+data_points = deque(maxlen=600000)
+
+# Create an empty plot
+fig, ax = plt.subplots()
+
+# Set the x-axis and y-axis limits
+ax.set_xlim(-2000, 2000)
+ax.set_ylim(-2000, 2000)
+
+# Create a scatter plot to visualize the data points
+scatter = ax.scatter([], [])
+
+last_update_time = time.time()
+
+update_interval = 0.5
+
+data = arduino.readline().decode().strip()
+old_dist, old_ang = map(float, data.split())
+
+line_counter = 0
+colorLines = ['black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'brown', 'gray']
+colorVec = []
+
+saveLine = []
+lines = []
+cubes = []
+
+m_left = 0
+
+def calculate_linear_regression_segment(points):
+    
+    x, y = points[:, 0], points[:, 1]
+    A = np.vstack([x, np.ones_like(x)]).T
+    m, c = np.linalg.lstsq(A, y, rcond=None)[0]
+    
+    # Calculate endpoints of the segment
+    x_start = x.min()
+    y_start = m * x_start + c
+    
+    x_end = x.max()
+    y_end = m * x_end + c
+
+    dist = abs(c) / np.sqrt(1 + m**2)
+    
+    
+    return x_start, y_start, x_end, y_end, m, dist
+
+def plot_segment_with_coefficient(ax, points, order):
+    global m_left
+    x_start, y_start, x_end, y_end, m, dist = calculate_linear_regression_segment(points)
+
+    color = 'black'
+    #black not determined
+    #red right
+    #blue left
+    #green up
+    #yellow down
+
+    if(abs(m) < 1): # horizontal line
+      if((y_start + y_end) / 2 < 0):
+        color = 'yellow'
+      else:
+        color = 'green'
+    else:
+      if (x_start + x_end) / 2 < 0:
+        color = 'blue'
+        m_left = m
+      else:
+        color = 'red'
+       
+
+    ax.plot([x_start, x_end], [y_start, y_end], color=color, linewidth=2)
+
+    # get distnace from origin to the line
+    ax.text((x_start + x_end) / 2, (y_start + y_end) / 2, f'{round(float(dist), 2)}', 
+            horizontalalignment='center', verticalalignment='bottom')
+    
+
+def calculate_threshold(distance):
+    distance = distance / 10
+    a = 0.0010947040728267199
+    b = -0.46574727812407213
+    c = 56.010728111461475
+    points = a * distance**2 + b * distance + c
+    threshold = max(14, points)  # Ensure threshold is at least 14
+    threshold = min(20, points)
+    return threshold
+    
+    
+
+# Main loop to continuously read and update data
+while True:
+    data = arduino.readline().decode().strip()
+    if data:
+        dist, ang = map(float, data.split())
+        point_y = -1 * dist * cos(radians(ang));
+        point_x = -1 * dist * sin(radians(ang));
+
+        if(old_ang <= 360 and ang >= 0 and old_ang > ang):
+           if(len(lines)):  
+
+            for line in ax.lines:
+              line.remove()
+            for text in ax.texts:
+              text.remove()
+
+            order = 0
+            for line in lines:
+              plot_segment_with_coefficient(ax, line, order)
+              order += 1
+
+
+            if m_left:
+              for cube in cubes:
+                x1, y1 = cube[0]
+                b = y1 - m_left * x1
+                y_line = m_left * np.array([x1, x1 - 100]) + b  # x1+10 is just an example, you can choose other values
+                dist = -1 * b / sqrt(m_left * m_left + 1)
+                ax.plot([x1, x1 - 100], y_line, color="black", linewidth=2)
+                ax.text((x1 + x1 - 100) / 2, (y1) / 2, f'{round(float(dist), 2)}', 
+                  horizontalalignment='center', verticalalignment='bottom')
+              
+            
+            cubes.clear()
+
+            
+            lines = []
+            cubes = []
+            
+            line_counter = 0
+            colorVec = []
+            pointCnt = 0
+
+              # Pause briefly to allow the plot to update
+            plt.pause(0.00001)
+        #same lin
+        if(abs(dist - old_dist) < 10 and min(abs(ang - old_ang), 360 - abs(ang - old_ang)) < 1.5):
+            saveLine.append((point_x, point_y))
+        else:
+            if(len(saveLine) > calculate_threshold(old_dist)):
+
+              lines.append(np.array(saveLine));
+              # save line is a list of tuples
+
+              line_counter += 1
+            elif(len(saveLine) > 2 and (abs(dist - old_dist) > 20 or abs(ang - old_ang) > 5) and (old_ang > 130 and old_ang < 240) and old_dist < 800):
+               cubes.append(np.array(saveLine));
+               data_points.extend(saveLine)
+            saveLine.clear()
+            saveLine.append((point_x, point_y))
+
+        old_dist = dist
+        old_ang = ang
+
+# Show the plot
+plt.show()
+
+```
+
+Our qualifying round strategy is simple. It is based only on the readings of the lidar and gyro sensor. We are using a PID controller to make sure the robot stays between the walls at a certain distance and it's as straight as possible. To make sure the robot doesn't bump into the walls we have the PID controller based on the data from the lidar.
+
+```ino
+move_servo(pid_error); 
+pid_error = (wall_dist[RIGHT] - wall_dist[LEFT]) * kp + (pid_error - pid_last_error) * kd;
 pid_last_error = pid_error;
+last_time_pid = millis();
+```
 
-move_servo(pid_error);
+Similar to the PID controller based on the lidar we have a PID controller that uses the data from the gyro. That way we can make sure our robot is straight all the time.
 
-if(debug) Serial << "Servo angle: " << pid_error << "\nStraight angle: " << current_angle << "\n";
+```ino
+pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+pid_last_error_gyro = pid_error_gyro;
 
-// Last turn
+move_servo(pid_error_gyro); 
+```
 
-// We are done with the last turn
-if(turns == 12) {
-  last_drive_start_cm = read_motor_encoder();
-  turns++;
-}
+The final code for the qualifying is structured as a machine state. The first state is the _SECTION_ state, in which there are de PID contollers. The second state is _ROTATE_, in which the robot makes the turn to go to the next section. And last we have the _STOP_ section, that stops the motors of the robot.
 
-// Stop
-// We are making sure that the robot is stopping at the right spot
-if(turns == 13 && read_motor_encoder() - last_drive_start_cm >= last_drive_cm) {
-  motor_stop();
-  delay(100000);
-}
+```ino
+switch(CASE) {
+   case SECTION: {
+     if(wall_dist[FRONT] > 0 && wall_dist[FRONT] < 500) {
+       writeSD(1, -1, -1, -1);
+       pid_case = 0;
+       current_angle += direction * 90;
+       turns++;
+       last_rotate = millis();
+       CASE = ROTATE;
+     }
+     else if(abs(pid_error) <= 0.15 || abs(wall_dist[RIGHT] - wall_dist[LEFT]) > 1200) {
+       pid_case = 1;
+       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro); 
+     }
+     else {
+       if(millis() - last_time_pid > 10 && wall_dist[LEFT] && wall_dist[RIGHT] && abs(wall_dist[RIGHT] - wall_dist[LEFT]) < 1200) {
+         pid_case = 2;
+         move_servo(pid_error); 
+         pid_error = (wall_dist[RIGHT] - wall_dist[LEFT]) * kp + (pid_error - pid_last_error) * kd;
+         pid_last_error = pid_error;
+         last_time_pid = millis();
+       }
+     }
+     break;
+   }
+   case ROTATE: {
+     if((wall_dist[RIGHT] - wall_dist[LEFT]) < 1200 && abs(current_angle - gx) < 5 && millis() - last_rotate >= 1000) {
+       if(turns >= 12) 
+         CASE = STOP;
+       else
+         CASE = SECTION;
+     } else {
+       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro); 
+     } 
+     break;
+   }
+   case STOP: {
+     delay(500);
+     move_servo(-1);
+     motor_start(-5);
+     Serial.println("Stop case");
+     writeSD(-1, -1, -1, -1);
+     delay(100000);
+     break;
+   }
+   default: {
+     break;
+   }
+ }
 ```
 
 The next step in order to solve this year's challenge was to make the robot avoid the obstacles, in order to solve the final round. For this we used not one, but two Pixy cameras. This way, we could obtain a wider imagine without using any lens. Now you may ask how did we used this cameras to avoid the obstacles.
