@@ -590,316 +590,103 @@ switch(CASE) {
  }
 ```
 
-The next step in order to solve this year's challenge was to make the robot avoid the obstacles, in order to solve the final round. For this we used not one, but two Pixy cameras. This way, we could obtain a wider imagine without using any lens. Now you may ask how did we used this cameras to avoid the obstacles.
+The next step in solving this year's challenge is to make the robot avoid the obstacles. For this we are not only using the lidar sensor and gyro, but also the PixyCam to detect the color of the cubes.
 
-Well the answer is simple. We used a PID controller, which is helping us to keep the cube at the center of the picture. The PID controller is using the data from the camera to calculate the error, which is the difference between the center of the picture and the x axies coordonate of the cube. The PID controller is using this error to calculate the angle he's going to rotate the servo motor.
-
-```ino
-pid_error = (cube.x - image_w / 2) * kp + integral * ki + (pid_error - pid_last_error) * kd;
-integral += pid_error;
-pid_last_error = pid_error;
-
-move_servo(pid_error);
-```
-
-It is obvious, that the cube will be right in front of the robot, so we need to make sure that we are not going to bump into it. In order to avoid this, we are using the ultrasonic sensor that is placed in the front of the robot. If the sensor detects a cube at a distance smaller than 35cm, we stop the robot and rotate the servo motor to the left or right, depending on the color of the cube, so we can avoid it.
+The code for the final round, is similar to the one of the qualifying one. Is structured as a machine state, consisting of 5 states, respectively _SECTION_, _AVOID_CUBE_, _PASS_CUBE_, _ROTATE_, _STOP_.
 
 ```ino
-double angle = curr_angle + last_cube_color * (avoid_angle);
-    
-if ((-last_cube_color) * (gz - angle) > 0 && flag == 0) {
-  move_servo(last_cube_color);
-  // ignore_index = last_cube_index;
-  into_turn_cube = last_cube_color;
-} else if (abs(gz - current_angle) > 4) {
-  flag = 1;
-  pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-  integral_gyro += pid_error_gyro;
-  pid_last_error_gyro = pid_error_gyro;
-  move_servo(-pid_error_gyro);
-} else {
-  move_servo(0);
+switch (CASE) {
 
-  if (front_sensor_cm > 120)
-    flag_straight = true;
+   case SECTION: {
+     if(wall_dist[RIGHT] > 1500 && wall_dist[FRONT] && wall_dist[FRONT] < 1000 && millis() - last_rotate > rotate_timeout) {
+       turns++;
+       last_rotate = millis();
+       last_cube_color = 0;
+       flag = 0;
+       if(wall_dist[LEFT] > 400)
+         CASE = ROTATE;
+       else
+         current_angle += 90;
+     }
+     else if(last_dist_to_cube && cube_color && wall_dist[LEFT] && wall_dist[BACK] < 1800) {
+       move_servo(cube_color * 1);
 
-  if (flag_straight)
-    loop_case = GO_STRAIGHT_CASE;
-  else {
-    loop_case = TURN_CASE;
-  }
-}
+       if (cube_color == GREEN)
+         goal_distance = (wall_dist[LEFT] + last_dist_to_cube) / 2 + 150;
+       else
+         goal_distance = (1000 + wall_dist[LEFT] + last_dist_to_cube) / 2 - 200;
 
+       last_cube_color = cube_color; 
+
+       CASE = AVOID_CUBE;
+     } else {
+       pid_error_gyro = ((current_angle + last_cube_color * 0) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro); 
+     }
+   }
+
+   case AVOID_CUBE: {
+     if(last_cube_color == GREEN && wall_dist[LEFT] < goal_distance || last_cube_color == RED && wall_dist[LEFT] > goal_distance) {
+       CASE = PASS_CUBE;
+     } else if(abs(current_angle - gx) > 55){
+       move_servo(0);
+     }
+     break;
+   }
+
+   case PASS_CUBE: {
+     if(wall_dist[BACK] > last_cube_y + 100) {
+       last_dist_to_cube = 0;
+       CASE = SECTION;
+     } else {
+       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro); 
+     }
+     break;
+   }
+
+   case ROTATE: {
+     if(abs((current_angle - 270) - gx) < 5) {
+       current_angle -= 270;
+       last_rotate = millis();
+       CASE = SECTION;
+     } else if((wall_dist[LEFT] > 500 || wall_dist[FRONT] > 300) && (wall_dist[LEFT] > 350 || wall_dist[FRONT] > 200) && flag == 0) {
+       ang = myacos((wall_dist[FRONT] - 300) / 
+       sqrt((wall_dist[FRONT] - 300) * (wall_dist[FRONT] - 300) + (wall_dist[LEFT] - 500) * (wall_dist[LEFT] - 500)));
+
+       pid_error_gyro = ((current_angle - ang) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro);
+     } else {
+       // CASE = STOP;
+       flag = 1;
+       pid_error_gyro = ((current_angle - 270) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+       pid_last_error_gyro = pid_error_gyro;
+
+       move_servo(pid_error_gyro); 
+     }
+     break;
+   }
+
+   case STOP: {
+     lidarMotorWrite(0);
+     move_servo(0);
+     motor_start(-10);
+     Serial.println("Stop case");
+     delay(100000);
+     break;
+   }
+   
+   default: {
+       break;
+   }
+ }
 ```
-
-This is not all, because we still need to make the robot to turn and make full laps, so having an algoritm with which we are avoiding the cubes is not enought. To solve the this round we decided that if we can avoid on a side corectly and can go to the next one without bumping in a cube than we can solve the problem, because we can have a loop that has 2 stages: one for avoiding the cubes and one for turninng to get to the next side.
-
-So in our strategy we are focusing on avoinding the cubes on the side we are on and turning to the text side. In order to do that, we've came up with a startegy that is based on 6 stages, based on the cubes we are reading and the position of the robot.
-
-At the very first of our round we are deciding which is the direction of the robot needs to move and also in which stated we need to start first.
-
-If we don't see any cube will go to _STRAIGHT_CASE_ and if we see a cube we will go to _CUBE_PID_CASE_.
-In the _STRAIGHT_CASE_ we are going to move forward using a PID controller based on the gyro sensor.
-
-```ino
-// If we see a cube in front of us we are going to the _CUBE_PID_CASE_ and if we don't we are going to the _STRAIGHT_CASE_
-if (front_sensor_cm < 100 || actual_cube_nr > 1)
-  loop_case = CUBE_PID_CASE;
-else if ((turn_direction == -1 && pixy_left.ccc.numBlocks > 0) || (turn_direction == 1 && pixy_right.ccc.numBlocks > 0))
-  loop_case = CUBE_PID_CASE;
-else
-  loop_case = GO_STRAIGHT_CASE;
-```
-
-In the first stage  _CUBE_PID_CASE_  we are doing a PID to keep the cube in front of us in the middle of the image, so we can avoid it when the front sensor is reading a distance less than 35cm. If we don't have a cube in front of us, we are going to keep moving forwward, until we see a distance less than 35cm with our front sensor.
-
-In this stage we are also read the color for the next cube, and we are deciding how to do the turn based on this. Because we are using two cameras then imagine that we can see with the robot is pretty wide. So we can see the first cube on the next side, if is one on the first posision. We are using this to determine the type of turn we need to use, in order to avoid the next cube, while turning  to the next side.
-
-```ino
-case CUBE_PID_CASE: {
-  if (cube.color == 0) {
-    move_servo(0);
-  } else {
-    if ((front_sensor_cm > 35 && front_sensor_cm > 0)) {
-      // We are doing a PID to keep the cube in front of us in the middle of the image
-      pid_error = (cube.x - image_w / 2) * kp + integral * ki + (pid_error - pid_last_error) * kd;
-      integral += pid_error;
-      pid_last_error = pid_error;
-
-      move_servo(pid_error);
-
-      last_cube_color = cube.color;
-      last_cube_index = cube.index;
-    } else {
-      file_println(corner_cube.color);
-      
-      // We are reading the next cube color and deciding which type of turn we need to do
-
-      out_turn_cube = corner_cube.color;
-
-      if (turn_direction == -1) {  // cube on the left side
-        if (out_turn_cube == -1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; } 
-        else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; }
-        else if (out_turn_cube == 1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; }
-      } else {
-        if (out_turn_cube == -1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; } 
-        else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; } 
-        else if (out_turn_cube == 1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; }
-      }
-
-      // if we see only 1 cube, we don't want to use the beaconing system
-      if (actual_cube_nr == 1) {
-        out_turn_cube = 0;
-      }
-
-      // We are  moving to the next case / stage 
-
-      flag = 0;
-      curr_angle = gz;
-      flag_straight = 0;
-      loop_case = AVOID_CASE;
-      avoid_start_time = millis();
-    }
-  }
-
-  break;
-}
-```
-
-The second stage is _AVOID_CASE_, in which we are avoiding a cube if we have one in front of us. To avoid the cube the first part of the avoiding move we are doing mechanically and the second part we are using a PID algorithm based on the gyro to center again the robot. After the robot finished avoiding the robot, we are moving to the next stage, named _TURN_CASE_.
-
-If we don't have a cube to avoid, again we are going to go to the _STRAIGHT_CASE_.
-
-```ino
-case AVOID_CASE: {
-  double angle = curr_angle + last_cube_color * (avoid_angle);
-
-  // The first part of the avoidig move (mechanically)  
-  if ((-last_cube_color) * (gz - angle) > 0 && flag == 0) {
-    move_servo(last_cube_color);
-    into_turn_cube = last_cube_color;
-  } else if (abs(gz - current_angle) > 4) {
-    flag = 1;
-
-    // The second part of the avoiding move (PID based on gyro)
-    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-    integral_gyro += pid_error_gyro;
-    pid_last_error_gyro = pid_error_gyro;
-    move_servo(-pid_error_gyro);
-  } else {
-    move_servo(0);
-
-    if (front_sensor_cm > 120)
-      flag_straight = true;
-
-    // Deciding which is the next stage
-    if (flag_straight)
-      loop_case = GO_STRAIGHT_CASE;
-    else {
-      loop_case = TURN_CASE;
-    }
-  }
-
-  break;
-}
-```
-
-The _TURN_CASE_ is our third case, in which we are preparing to make the turn to the next side. First we are stopping to the distance we've calculated earlier in the _AVOID_CASE_. This way if we have a red or green cube first on the next side we know how far away we need to be to make the turn to avoid it. After we've stopped we are setting the angle at which the robot needs to turn, and going to the next stage, _GYRO_PID_CASE_.
-
-```ino
-case TURN_CASE: {
-
-  // PID based on gyro
-  pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-  integral_gyro += pid_error_gyro;
-  pid_last_error_gyro = pid_error_gyro;
-
-  move_servo(-pid_error_gyro);
-
-  // We are stopping the robot at the distance we've calculated earlier ,calculating the angle at which we need to turn and going to the next stage
-  if (front_sensor_cm < wall_dist) {
-    current_angle += turn_angle * turn_direction;
-    turns++;
-    turn_encoder = 80 - left_sensor_cm;
-    loop_case = GYRO_PID_CASE;
-  }
-
-  break;
-}
-```
-
-In the fourth stage, _GYRO_PID_CASE_, is more complicated than the rest of the stages, as you can see. In the first part of the case we are making the turn, so we are on the next side. After finishing the turn there a are two possible cases that we can encounter: if we saw a cube before the turn or if we didn't.
-
-If we saw a cube before the turn, we are going to keep moving forward for a fixed distance, this way we are sure that the robot avoided the cube and passed it. Now that the robot have passed the cube we can turn back to the first stage, _CUBE_PID_CASE_.
-
-If we didn't see a cube before the turn, we are still going to move forward for a fixed distance, to be sure that the robot is between the two black walls on the side, and then we are going back to the first stage, _CUBE_PID_CASE_.
-
-Also if the robot finished all of the 3 laps (12 turns in total), he's going to FINISH_CASE.
-
-```ino
-case GYRO_PID_CASE: {
-  // If we didnt finish the turn we are continuing it
-  if (abs(gz - current_angle) > 8) {
-
-    // PID based on gyro
-    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-    integral_gyro += pid_error_gyro;
-    pid_last_error_gyro = pid_error_gyro;
-
-    move_servo(-pid_error_gyro);
-
-    turn_start_encoder = read_motor_encoder();
-  } else {
-    // If we saw a cube before the turn 
-    if (out_turn_cube != 0) {
-      // we are moving forward for a fixed distance or if we are between the two black walls
-      if (left_sensor_cm + right_sensor_cm > 80 || read_motor_encoder() - turn_start_encoder < 15) {
-        pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-        integral_gyro += pid_error_gyro;
-        pid_last_error_gyro = pid_error_gyro;
-
-        move_servo(-pid_error_gyro);
-      } else {
-        // If we are between the two black walls we are going back to the first stage
-        loop_case = CUBE_PID_CASE;
-
-        // If the robot finished all of the 3 laps (12 turns in total), he's going to _FINISH_CASE_
-        if (turns == 12) {
-          start_encoder = read_motor_encoder();
-          loop_case = FINISH_CASE;
-        }
-      }
-    } else {
-      // If we didnt see a cube before the turn we are moving forward for a fixed distance or if we are between the two black walls
-      if (read_motor_encoder() - turn_start_encoder < turn_encoder) {
-        pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-        integral_gyro += pid_error_gyro;
-        pid_last_error_gyro = pid_error_gyro;
-
-        move_servo(-pid_error_gyro);
-      } else {
-        //if we are between the two black walls we are going back to the first stage
-        loop_case = CUBE_PID_CASE;
-        motor_stop();
-        delay(100000);
-
-         // If the robot finished all of the 3 laps (12 turns in total), he's going to _FINISH_CASE_
-        if (turns == 12) {
-          start_encoder = read_motor_encoder();
-          loop_case = FINISH_CASE;
-        }
-      }
-    }
-  }
-  break;
-}
-```
-
-Our fifth case is the _GO_STRAIGHT_CASE_. We are using this case, usually, if we don't have a cube in front of us that needs to be avoided. So in this case we are moving forward, using a PID algorithm based on the gyro sensor, until we reached a distance smaller than 110cm with the front sensor. After we've reached this distance we are going to decide the color of the next first cube of the next side, what type of turn we need to make. And when we finished determining the color of the cube we are going to the next stage, _TURN_CASE_.
-
-```ino
-case GO_STRAIGHT_CASE: {
-  if (front_sensor_cm > 110) {
-
-    //we are moving forward using a PID based on gyro util we see with the front sensor a distance smaller than 110cm
-    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-    integral_gyro += pid_error_gyro;
-    pid_last_error_gyro = pid_error_gyro;
-
-    move_servo(-pid_error_gyro);
-  } else {
-    // We are reading the color of the next cube and deciding which type of turn we need to make 
-
-    file_println(cube.color);
-    out_turn_cube = cube.color;
-
-    if (turn_direction == -1) {  // cube on the left side
-      if (out_turn_cube == -1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; } 
-      else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; }
-      else if (out_turn_cube == 1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; }
-    } else {
-      if (out_turn_cube == -1) { wall_dist = ext_wall_dist; center_angle = turn_direction * center_angle_value; } 
-      else if (out_turn_cube == 0) { wall_dist = mid_wall_dist; center_angle = 0; } 
-      else if (out_turn_cube == 1) { wall_dist = int_wall_dist; center_angle = -turn_direction * center_angle_value; }
-    }
-
-    // if we see only 1 cube, we don't want to use the beaconing system
-    if (actual_cube_nr == 1) {
-      out_turn_cube = 0;
-    }
-
-    //We are going to the first stage
-    flag = 0;
-    curr_angle = gz;
-    loop_case = TURN_CASE;
-    avoid_start_time = millis();
-  }
-  break;
-}
-```
-
-Last but not least, we have the _FINISH_CASE_, in which we are moving 10cm forward to be sure we are stopping as we where we should and then we are stopping the robot.
-
-```ino
-case FINISH_CASE: {
-  // We are moving 10cm forward to be sure we are stopping as we where we should
-  if( read_motor_encoder() - start_encoder < 10 ){
-    pid_error_gyro = (gz - current_angle) * kp_gyro + integral * ki_gyro - (pid_last_error_gyro - pid_error_gyro) * kd_gyro;
-    integral_gyro += pid_error_gyro;
-    pid_last_error_gyro = pid_error_gyro;
-
-    move_servo(-pid_error_gyro);
-  } else{
-    // We are stopping the robot
-    motor_stop();
-    delay(1000);
-  }
-  break;
-}
-```
-
-In conclusion, as we can see, our strategy is based on the idea of avoiding the cube before the turning to the next side, reading the first cube on the next side, if there is any, turning based on the color of the next cube to avoid it while turning, reapiting this process until we finished all of the 3 laps. We implemented this strategy using a state machine with 6 stages, all of which are showed below and explined above.
-
 <br>
 
 # Code for each component <a class="anchor" id="code-for-each-component"></a>
