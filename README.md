@@ -124,7 +124,7 @@ Our initial prototypes utilized Lego pieces to assemble all components, which si
 
 Incorporating a LIDAR system necessitated maintaining all components, except for the LIDAR itself, below a certain height (approximately 8 cm, slightly less than the wall height) to ensure an unobstructed field of view for the sensor. Consequently, we had to extend the robot's length more than preferred, but this was an essential compromise. The drive motor extends out from the back of the robot, while the servo motor is centrally positioned directly beneath the LIDAR. Due to spatial constraints preventing the servo motor from being placed higher, we relinquished the all-wheel drive in favor of an alternative configuration. The gyroscope sensor is also mounted on the chassis, positioned near the drive motor.
 
-![Chassis/Body - 3D Model](./images/resources/chassis.jpg "Powertrain - 3D Model")
+![Chassis - 3D Model](./images/resources/Chassis.jpg "Chassis - 3D Model")
 
 
 # Power and Sense Management <a class="anchor" id="power-and-sense-management"></a>
@@ -135,6 +135,10 @@ Incorporating a LIDAR system necessitated maintaining all components, except for
 Last year, we powered our robot with a 6-pack of AA Nickel-Metal Hydride (NiMH) batteries, which provided approximately 7.2V and 2000mAh but weighed around 650g. With our goal of building a smaller and lighter robot, we recognized the need for a different power source. We chose a Lithium Polymer (Li-Po) battery for its lighter weight, more compact size, and quicker charging capabilities. The specific model we selected is the *LiPo GENS ACE Soaring* (7.4V, 2200mAh, 20C). Switching to this battery reduced the weight of our power pack from 650g to 100g, almost halving the robot's weight. Moreover, the battery is more than twice as small in terms of volume.
 
 Where to buy the battery: https://www.sierra.ro/Acumulator-LiPo-GENS-ACE-Soaring-7-4-V--2200-mA--20C-p11141p.html
+
+The battery is mounted using a custom 3D-printed holder, which is secured to the chassis.
+
+![Battery Mount - 3D Model](./images/resources/BatteryMount.jpg "Battery Mount - 3D Model")
 
 ### Teensy 4.1 <a class="anchor" id="teensy-4.1"></a>
 ![Teensy 4.1](./images/resources/teensy.jpg " Teensy 4.1")
@@ -156,6 +160,10 @@ Following the international competition in Dortmund, we discovered the Pixycam 2
 
 Where to buy the Teensy 4.1: https://www.pjrc.com/store/teensy41.html
 
+The Teensy, mounted on a prototype board, is secured to the chassis with a custom 3D-printed holder.
+
+![PCB Mount - 3D Model](./images/resources/PCB_Mount.jpg "PCB Mount - 3D Model")
+
 ### LIDAR <a class="anchor" id="lidar-sensor"></a>
 ![RPLIDAR A1](./images/resources/RPLIDAR_A1.png "RPLIDAR A1")
 
@@ -164,6 +172,10 @@ The LIDAR A1 sensor is a crucial component of our robot. It provides the robot w
 In the lead-up to the World Robot Olympiad (WRO) 2022, an iterative process of solution development was undertaken, aiming to resolve the persistent challenge of precise robot localization and obstacle detection under variable environmental conditions. The trials encompassed the deployment of both ultrasonic and infrared sensors. However, these sensors exhibited limitations in terms of angular sensitivity and dependability, influenced by the robot's orientation, which impeded their effectiveness for consistent environmental navigation and recognition tasks.
 
 Where to buy the RPLIDAR A1: https://www.adafruit.com/product/4010
+
+The LIDAR is secured to the chassis with custom 3D-printed holders on each leg.
+
+![LIDAR Mount - 3D Model](./images/resources/LIDAR_Mount.jpg "LIDAR Mount - 3D Model")
 
 ### IMU <a class="anchor" id="imu-sensor"></a>
 ![IMU Sensor - BMI088](./images/resources/gyro.jpg "IMU Sensor - BMI088")
@@ -186,6 +198,10 @@ To address this, we switched to the Pixycam 2.1, which offers several significan
 Together with the Teensy 4.1, the camera delivers readings at approximately 60 frames per second, a limit we've set ourselves. Additionally, the camera's operation doesn't impact the performance of other sensors, allowing us to take full advantage of their capabilities.
 
 Where to buy the PixyCam 2.1: https://www.robotshop.com/products/charmed-labs-pixy2-robot-vision-image-sensor-lego-rbc
+
+The Pixycam 2.1 is mounted on the chassis with a custom 3D-printed holder.
+
+![Pixycam Mount - 3D Model](./images/resources/CameraMount.jpg "Pixycam Mount - 3D Model")
 
 ### Voltage regulator <a class="anchor" id="voltage-regulator"></a>
 ![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
