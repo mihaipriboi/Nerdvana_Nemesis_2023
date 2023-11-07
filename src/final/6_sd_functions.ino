@@ -68,23 +68,21 @@ void file_println(String s) {
 //         + String(pixy.ccc.blocks[i].m_index) + ",age: " + String(pixy.ccc.blocks[i].m_age) + ", ";
 // }
 
-void writeSD(int aux, int aux2, int aux3, int aux4) {
+void writeSD() {
 
-  data_string += "time " + String(millis()) + " , "; 
-  data_string += "left " + String(wall_dist[LEFT]) +  " , right " + String(wall_dist[RIGHT]) + " , FRONT " + String(wall_dist[FRONT]) + " , ";
-  data_string += "pd_case: " + String(pid_case) + " , ";
-  data_string += "case: " + String(CASE) + ", ";
-  data_string += "pd err: " + String(pid_error) + " ,gx " + String(gx)+ ", ang:" + String(current_angle)+'\n';
+  data_string += "time " + String(millis()) + ", "; 
+  data_string += "case " + String(CASE) + ", "; 
+  data_string += "left " + String(wall_dist[LEFT]) +  ", right " + String(wall_dist[RIGHT]) + ", front " + String(wall_dist[FRONT]) + ", back " + String(wall_dist[BACK]);
+  // data_string += "left " + String(slopes[LEFT]) +  ", right " + String(slopes[RIGHT]) + ", front " + String(slopes[FRONT]) + ", back " + String(slopes[BACK]);
+  data_string += ", turn_ok " + String(turn_ok) + ", ";
+  data_string += ", last_cube_y: " + String(last_cube_y) + ", ";
+  data_string += ", last_cube_color: " + String(last_cube_color) + ", ";
+  data_string += ", color: " + String(cube_color) + ", ";
+  data_string += ", goal_distance: " + String(goal_distance) + ", ";
+  data_string += ", final_cube_color " + String(final_cube_color) + ", final_cube_pos " + String(final_cube_pos) + ", final_cube_turn " + String(final_cube_turn) + ", ";
+  data_string += ", turns " + String(turns) + ", cube_section_cnt " + String(cube_section_cnt) + ", ";
+  data_string += "pd err: " + String(pid_error) + ", gx " + String(gx)+ ", c_ang " + String(current_angle) + '\n';
 
-  if(aux)
-    data_string += "aux: " + String(aux) + ", ";
-  if(aux2)
-    data_string += "aux1: " + String(aux2) + ", ";
-  if(aux3)
-    data_string += "aux2: " + String(aux3) + ", ";
-  if(aux4)
-    data_string += "aux3: " + String(aux4) + ", ";
-    
   if(millis() - sd_last_write_time > 1000) {
     file_println(data_string);
     data_string = "";

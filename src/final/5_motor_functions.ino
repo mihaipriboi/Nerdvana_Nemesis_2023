@@ -35,6 +35,8 @@ void motor_start(int speed) {
     digitalWrite(AIN2, HIGH);
   }
   analogWrite(PWM1, out);
+
+  Serial << "speed: " << speed << "\n";
 }
 
 void motor_stop() {
@@ -70,9 +72,9 @@ void servo_setup() {
   // #endif // QUALI
 
   #ifdef QUALI
-  servo.attach(SERVO_PIN, 1390, 1612);
+  servo.attach(SERVO_PIN, 1380, 1631);
   #else
-  servo.attach(SERVO_PIN, 1390, 1612);
+  servo.attach(SERVO_PIN, 1380, 1631);
   #endif // QUALI
 
   move_servo(0);

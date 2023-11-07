@@ -78,7 +78,6 @@ double angleDiff(double old_angle, double now_angle) {
 double d0[2];
 uint16_t distance[2];
 double last_time = 0;
-int flag = 0;
 
 
 #define MAX_POINTS 1000
@@ -92,12 +91,16 @@ double old_dist = 10000;
 Point current_line[MAX_POINTS];
 int current_line_size = 0;
 
+double left_m = 0, right_m = 0;
+
 double calculate_threshold(double distance) {
+  distance /= 10.0; 
   double a = 0.0010947040728267199;
   double b = -0.46574727812407213;
   double c = 56.010728111461475;
   double points = a * distance * distance + b * distance + c;
   double threshold = max(7.0, points);  // Ensure threshold is at least 7
+  threshold = min(20, threshold);
   return threshold;
 }
 
@@ -131,19 +134,23 @@ void calculate_linear_regression_segment(Point& start, Point& end, double& dist,
 
   dist = abs(c) / sqrt(1 + m * m);
 
-  if(abs(m) < 1) {
-    if((start.y + end.y) / 2 < 0)
+  if(abs(m) < 0.4) {
+    if((start.y + end.y) / 2 < 0) 
       dir = BACK;
-    else
+    else 
       dir = FRONT;
   } else {
     if((start.x + end.x) / 2 < 0)  {
       dir = LEFT; 
     }
-    else
+    else {
       dir = RIGHT;
+    }
   }
+  slopes[dir] = m;
 }
+
+int flag_back = 0;
 
 void lidarProcessPoint(Angle angl, Point p) {
   double ang, dist;
@@ -153,19 +160,51 @@ void lidarProcessPoint(Angle angl, Point p) {
   if(abs(dist - old_dist) < 10 && min(abs(ang - old_ang), 360 - abs(ang - old_ang)) < 1.5) {
     current_line[current_line_size++] = p;
   } else {
-      if(current_line_size > 10) {
+      if(current_line_size > calculate_threshold(old_dist)) {
         Point start, end;
         double wall_d;
         int wall_dir;
 
         calculate_linear_regression_segment(start, end, wall_d, wall_dir);
 
-        wall_dist[wall_dir] = wall_d;
-        wall_updated[wall_dir] = true;
+        if(wall_d > 50) {
+          old_wall_dist[wall_dir] = wall_dist[wall_dir];
+          wall_dist[wall_dir] = wall_d;
+          if(wall_dir == FRONT && (wall_dist[FRONT] + wall_dist[BACK]) < 2800) {
+            wall_dist[BACK] = 3050 - wall_d;
+          }
+          wall_updated[wall_dir] = true;
+        }
+
+      }
+      else if(current_line_size > 2 && (abs(dist - old_dist) > 20 || abs(ang - old_ang) > 5) && (old_ang > 120 && old_ang < 240)
+              && old_dist < 1000 && old_dist > 100 && (wall_dist[BACK] < 1500 || wall_dist[FRONT] > 1400)) {
+        xa = current_line[current_line_size / 2].x;
+        ya = current_line[current_line_size / 2].y;
+
+        if(xa && ya && wall_dist[side_wall]) {
+          double na = ya - slopes[side_wall] * xa;
+          dist_to_cube = (-1) * na / sqrt(slopes[side_wall] * slopes[side_wall] + 1);
+          //left
+          if(dist_to_cube && !last_dist_to_cube && cube_color && abs(wall_dist[side_wall] + direction * dist_to_cube) < 850) { 
+            last_dist_to_cube = dist_to_cube;
+            last_cube_y = wall_dist[BACK] + ya;
+            if(last_cube_y > 2000)
+              last_cube_y = 2000;
+            if(last_cube_y < 1000)
+              last_cube_y = 1000;
+          } 
+        }
+        // Serial << dist_to_cube << " " << old_ang << " " << old_dist  << " " << left_m << " " << current_line_size << " " << wall_dist[BACK] << '\n';
       }
 
       current_line_size = 0;
       current_line[current_line_size++] = p;
+  }
+
+  if(current_line_size > 10000) {
+    Serial << current_line_size << '\n';
+    delay(1000000); 
   }
 
   old_dist = dist;
@@ -205,17 +244,23 @@ void lidarProcessingData() {
             x = -distance[j] * sin(radians(gx_angle));
 
             if(distance[j] > 5 && distance[j] < 4000) {
+              // Serial << x << " " << y << '\n';
+              // Serial << distance[j] << " " << gx_angle << '\n';
               lidarProcessPoint(Angle(distance[j], gx_angle), Point(x, y));
             }
+
         }
     }
 }
 
+// Reading information from lidar
 void lidarRead() {
     if (!Serial1.available()) {
         return;
     }
     byte current_byte = Serial1.read();
+    //Serial.println("Current byte: ");
+    //Serial.println(current_byte);
     if (lidar_buff_ptr == 0) {
         if ((current_byte >> 4) != 0xA) {
             return;

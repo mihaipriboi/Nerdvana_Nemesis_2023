@@ -8,7 +8,7 @@ Bmi088Accel accel(Wire,0x19);
 
 // Gyro sensor
 double gyro_last_read_time = 0;
-double drifts_x, drifts_y, drifts_z;
+double drifts_x = 0, drifts_y = 0, drifts_z = 0;
 
 /// Gyro functions
 
