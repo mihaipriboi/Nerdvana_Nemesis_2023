@@ -6,224 +6,360 @@
   * [Robot](#robot-image)
 * [Performance Video](#video)
 * [Mobility Management](#mobility-management)
-  * [Mechanical Components](#mechanical-components)
-    * [All-wheel drive](#all-wheel-drive)
+  * [Powertrain](#powertrain-mechanical)
     * [Drivetrain](#drivetrain-mechanical)
-    * [Steering](#steering-mechanical)
-  * [Electrical Components](#electrical-components)
+    * [Motor](#motor-mechanical)
+    * [Motor Driver](#motor-driver-mechanical)
+  * [Steering](#steering-mechanical)
     * [Servo Motor](#servo-motor)
-    * [Drive Motor](#drive-motor)
-    * [Motor Driver](#motor-driver)
+  * [Chassis](#chassis-mechanical)
 * [Power and Sense Management](#power-and-sense-management)
-  * [Teensy 4.1](#teensy-4.1)
-  * [Lidar sensor](#lidar-sensor)
-  * [Ultrasonic sensor (HC-SR04)](#ultrasonic-sensor-(HC-SR04))
-  * [Gyro Sensor](#gyro-sensor-(BMI088))
   * [Li-Po Battery](#li-po-battery)
-  * [PixyCam 2.1](#pixy-cam-2.1)
-  * [Voltage regulator](#voltage-regulator-(L7805CV))
-  * [Circuit diagram](#circuit-diagram)
-* [Obstacle Management](#obstacle-management)
+  * [Teensy 4.1](#teensy-4.1)
+  * [LIDAR](#lidar-sensor)
+  * [IMU](#imu-sensor)
+  * [Pixycam 2.1](#pixy-cam-2.1)
+  * [Voltage Regulator](#voltage-regulator-(L7805CV))
+  * [Circuit Diagram](#circuit-diagram)
 * [Code for each component](#code-for-each-component)
   * [Drive Motor](#drive-motor-code)
   * [Servo Motor](#servo-motor-code)
   * [Camera](#camera-code)
-  * [UltraSonic Sensor](#ultrasonic-sensor-code)
-  * [Gyro Sensor](#gyro-sensor-code)
+  * [LIDAR](#lidar-code)
+    * [Python Data Visualization](#python-data-visualization)
+  * [IMU](#gyro-sensor-code)
   * [SD Card](#sd-card-code)
-  * [Display](#display-code)
+* [Obstacle Management](#obstacle-management)
+  * [Qualification Round](#quali-management)
+  * [Final Round](#final-management)
+* [Randomizer](#randomizer)
 * [Resources](#resources)
   * [3D Models](#3d-models-resources)
   * [Images](#images-resources)
-  * [Copyright](#copyright)
 
 ### Team: Priboi Mihai, Onișoru Antonia, Bălan Teodor <a class="anchor" id="team-image"></a>
   ![Team](./images/team_image.jpg)
 
-## Photos of our robot Paula Mia (**P**retty **A**wesome **U**ltra **L**ow **A**ccurate **M**inimum **I**ntelligence **A**ugmentation) <a class="anchor" id="robot-image"></a>
+## Photos of our robot Paula Mia (**P**retty **A**wesome **U**ltra **L**ocomotion **A**utonomous **M**apping **I**ntelligence **A**ugmentation) <a class="anchor" id="robot-image"></a>
 
-| <img src="./images/robot_images/robot_front.jpg" width="90%" /> | <img src="./images/robot_images/robot_back.jpg" width="85%" /> | 
+| <img src="./images/robot_images/robot_front.png" width="90%" /> | <img src="./images/robot_images/robot_back.png" width="85%" /> | 
 | :--: | :--: | 
 | *Front* | *Back* |
-| <img src="./images/robot_images/robot_left.jpg" width="90%" /> | <img src="./images/robot_images/robot_right.jpg" width="85%" /> | 
+| <img src="./images/robot_images/robot_left.png" width="90%" /> | <img src="./images/robot_images/robot_right.png" width="85%" /> | 
 | *Left* | *Right* |
-| <img src="./images/robot_images/robot_top.jpg" width="90%" /> | <img src="./images/robot_images/robot_bottom.jpg" width="85%" /> | 
+| <img src="./images/robot_images/robot_top.png" width="90%" /> | <img src="./images/robot_images/robot_bottom.png" width="85%" /> | 
 | *Top* | *Bottom* |
 
 <br>
 
-## Our video of the robot on [Youtube](https://youtu.be/QVi7v2j4KB4) <a class="anchor" id="video"></a>
+## Our video of the robot on [Youtube](https://youtu.be/1fn3-xTy-k4) <a class="anchor" id="video"></a>
 
 <br>
 
 # Mobility Management <a class="anchor" id="mobility-management"></a>
-![Powertrain - 3D Model](./images/resources/powertrain.png "Powertrain - 3D Model")
+![Powertrain](./images/resources/powertrain.png "Powertrain")
 
-## Mechanical components <a class="anchor" id="mechanical-components"></a>
-After our experience from last year's edition, where we used a back-wheel drive with a differential, this year, at the national, we decided to go with a AWD system. We chose this system because the BWD has a harder time steering as there is no power on the steering wheels. Also, an AWD system assure a more stable power distribution.
+## Powertrain <a class="anchor" id="powertrain-mechanical"></a>
 
-Our drivetrain is constructed using Lego Technic pieces and 3D printed pieces to connect the electrical components with the Lego.
-
-The main components of the drivetrain, as you can see in the picture in _all-wheel drive_ section, are the differentials on the front/back set of wheel, and the center one which conects them to the motor. In order to increase the speed of the robot we also used a system of cogs with a gear ratio of **1:1.67**.
-
-We've tried different steering mechanisms like the _Ackermann steering_ or the _Bell-crank steering_. Because of their complexity, we came to the conclusion that it is better for us to use a simpler one, as it can be contructed with fewer pieces and it is smaller.
-
-### All-wheel drive <a class="anchor" id="all-wheel-drive"></a>
-
-![Powertrain - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
-
-As we said, we've designed 3D printed parts to connect the electronic components to the lego structure of the steering. Therefore, our construction includes a big chassis (as the body), made by use with the help of a 3D printer, to which the motors and sensors are attached to by screws or their own custom 3D printed piece.
-
-### Chassis <a class="anchor" id="drivetrain-mechanical"></a>
-![Chassis/Body - 3D Model](./images/resources/powertrain_bottom_text.png "Powertrain - 3D Model")
-
-To the chassis, or the body the servo, the DC motor, the gyro sensor, the steering system and the differential are directly attached. The servo and the motor are attached to the body by using screws. The motor is placed at the very back of the robot and the servo is at the front. The steering system and differential are connected by using lego pieces.
-
-In the sketch you can see the dimensions of the chassis of your robot.
-
-### Chassis drawing <a class="anchor" id="drivetrain-mechanical"></a>
-![Chassis/Body - 3D Model](./images/resources/robot2023fe.jpg "Powertrain - 3D Model")
-
-In order to be able to move the wheels we needed to transform the axle of the motor to a lego axle (because we are using lego gears), we did this by designing a 3D piece that does this. You can see the specification of it below.
+![Powertrain - Bottom View](./images/resources/powertrain_bottom_text.png "Powertrain - Bottom View")
 
 ### Drivetrain <a class="anchor" id="drivetrain-mechanical"></a>
-![Gearmotor to axle - 3D Model](./images/resources/MotorToAxle.png "Gearmotor to axle 3D piece")
 
-For the servo motor, to connect its axle to the drivetrain, so again we've made 2 different pieces that convert the axle of the motor to a lego axle, as you can see in the drawing below.
+After reflecting on our experience from last year's competition, where we utilized a rear-wheel drive (RWD) with a differential, we opted for an all-wheel drive (AWD) system for this year's national event. We were motivated to switch because the RWD struggled with steering due to the lack of power in the front wheels. Moreover, an AWD system ensures a more even distribution of power.
 
-### Steering <a class="anchor" id="steering-mechanical"></a>
-![Servo arm - 3D Model](./images/resources/ServoArm.png "Servo arm")
+However, after deciding to incorporate a LIDAR sensor, we found it essential to mount the sensor low to improve its accuracy. Given its considerable size, and the space constraints for the front differential and driveshaft—further challenged by our decision to place the servo lower to make room for the LIDAR—we ultimately returned to the RWD configuration.
 
-Now that we finished with the components attached directlly to the chassis, we still need to connect the other components in order to make the robot move.
+To minimize friction and thereby reduce speed loss, we avoided using 3D-printed components for the moving parts in the drivetrain. Instead, we utilized Lego pieces, which are molded with high precision and therefore have a very low friction coefficient. The 3D-printed parts were reserved for the chassis and for mounting the electronic components onto the Lego structure.
 
-First, we have the RPLIDAR A1 sensor, which takes a lot of space. It's size explains its weight. Being one of your heavier components we tried to place it at the center of your robot so we can have a balance construction. To connect the sensor to the body we came up with a quite simple idea. We use 4 pieces identical with the one shown in the drawing below. These 3D pieces are designed to me attached with screws to the lidar and with black lego pins to the body. Is such a simple solution for this big, heavy and complicated sensor.
+### Motor <a class="anchor" id="motor-mechanical"></a>
 
-### RPLIDAR Support <a class="anchor" id="steering-mechanical"></a>
-![RPLIDAR Support - 3D Model](./images/resources/lidar_support.jpg "RPLIDAR support")
+Following an evaluation of different motors, we settled on a geared DC motor that comes with a magnetic encoder. This motor was selected for its lightweight and compact design, which stands out among others with comparable output. Additionally, the magnetic encoder offers greater precision than its optical counterpart. We secured the motor to the chassis using screws.
 
-And this concludes the sensors, that our robot has. All that we need to make the robot functinal is a microcontroller, a battery and a camera.
+**Specifications:**
+- Voltage: < 7V
+- Gear Ratio: 1:20
+- Speed: 400 ± 13% rpm
+- Torque: 0.4 ± kg·cm
+- Weight: 67.4g
 
-We will start with the microcontroller. We used a teensy and a PCB to create our circuit. The teensy is connected to the PCB, so this way the PCB and the teensy are like one component together. We placed them at the back of the robot, and we designed a 3D piece to attach them to the body. In order to fix the PCB and teensy to the 3D part we used screws, and to connect to the body we used black lego pins. You can see the design below.
+Where to buy the motor: https://www.adafruit.com/product/4416
 
-### PCB Support <a class="anchor" id="steering-mechanical"></a>
-![PCB Support - 3D Model](./images/resources/PCB_support.jpg "PCB Support")
+To connect the motor's axle to a Lego-compatible axle, we created a custom 3D-printed adapter.
 
-The battery, as the RPLIDAR A1 sensor, is quite heavy, so we tried to place it as close to the middle of the robot as possible. For it we also designed another piece as you can see in the skech. What is special about this piece is that we made a special space so we can put its cable, so the construction is neat and compact.
+![Gearmotor to axle - 3D Model](./images/resources/DriveMotorToLegoAxle.jpg "Gearmotor to axle 3D piece")
 
-### Battery Support <a class="anchor" id="steering-mechanical"></a>
-![Battery Support - 3D Model](./images/resources/BatterySupport.jpg "Battery Support")
-
-Now the final component is the camera. It's an important component for the robot, because we use it to distinguish the colors of the cubes. We made another 3D model, to attach it to the body. Like the majority of the electronic components we use screws to fix the camera to the 3D piece and black logo pins to connect the piece to the chassis.
-
-### Camera Support <a class="anchor" id="steering-mechanical"></a>
-![Camera Support - 3D Model](./images/resources/CameraSupport.jpg "Camera Support")
-
-<br>
-
-## Electrical Components <a class="anchor" id="electrical-components"></a>
-
-Two of the most important electrical components of your robot are the motors. For the steering we are using a servo motor, respectively MG996R servo motor. And to make the robot move we are using a geared DC motor with a magnetic encoder (output - 7 V, 1:20 ratio). They are attached to the body directly without using 3D parts or lego pieces.
-
-### Drive Motor <a class="anchor" id="drive-motor"></a>
-![DC Motor](./images/resources/drive_motor.jpg "DC Motor")
-
-The geared DC motor is connected to the ground and power line of the teensy. We are using a motor controller to be able to change the velocity of the motor (we connected the motor to A01, A02 pins of the driver).For the cables of the encoder of the DC motor we connected them directly to the teensy board (they are on PIN4 and PIN5).
-
-### Motor Driver <a class="anchor" id="motor-driver"></a>
+### Motor Driver <a class="anchor" id="motor-driver-mechanical"></a>
 ![Motor driver](./images/resources/motor_driver.png "Motor driver")
 
-To control the velocity of the DC motor we used a motor driver from SparkFun (Dual TB6612FNG). The PWMA of the driver is connected to PIN7 of the teensy board, also AI2 and AI1 of the driver are connected to PIN4, respectively PIN5. 
+To control the speed of the drive motor, we utilized a SparkFun Dual TB6612FNG motor driver.
+
+Where to buy the motor driver: https://www.sparkfun.com/products/14450
+
+## Steering <a class="anchor" id="steering-mechanical"></a>
+
+![Powertrain - Angled Bottom View](./images/resources/bottom_angle.png "Powertrain - Angled Bottom View")
+
+After experimenting with various steering mechanisms such as Ackermann steering and bell-crank steering, we assessed their advantages and drawbacks. Ultimately, we chose a straightforward steering system consisting of a parallelogram linkage. This decision was made because the alternative systems were either too large or too complex to implement effectively. Our selected mechanism is simple, light, and compact, providing a satisfactory steering angle. While it does not adhere to the Ackermann steering geometry, our tests showed that for our robot's small size and light weight, this omission was not critically significant.
 
 ### Servo Motor <a class="anchor" id="servo-motor"></a>
 ![MG996R Servo](./images/resources/MG996R.webp "MG996R Servo")
 
-For the steering part, the servo is essentially. The servo is MG996R servo motor. It has a 180 rotate angle and enough torque (the servo torque is 9kg/cm for 4.8V and 11 kg/cm for 6V). Like the DC motor, the MG996R is connected to the power and ground line, and PIN10 (this pin helps us change the rotating direction) of the teensy.
+For steering, we selected the MG996R servo motor, favoring it for its high torque and swift response.
+
+**Specifications:**
+- Weight: 55g
+- Stall torque: 9.4 kg/cm (4.8v)
+- Operating speed: 0.17 s/60 degree (4.8v)
+- Rotation angle: 180 degree
+
+Where to buy the servo motor: https://www.sigmanortec.ro/servomotor-mg996r-180-13kg
+
+To connect the servo motor to the steering system, we fashioned a custom 3D-printed adapter. Given the dynamic geometry of the system, the connector couldn't be a single rigid piece because its length needed to be adjustable according to the wheel positions. Thus, we designed a two-part beam: the larger piece attaches to the servo and the smaller piece to the steering mechanism. The smaller piece slides into the larger one, permitting the beam's length to vary. We introduced a slight space between the two components to ensure smooth movement, while also ensuring that a significant portion of the smaller piece remains within the larger one to avoid disconnection or bending.
+
+![Servo Arm - 3D Model](./images/resources/ServoArm.png "Servo Arm")
+
+## Chassis <a class="anchor" id="chassis-mechanical"></a>
+
+Our initial prototypes utilized Lego pieces to assemble all components, which simplified testing and design modifications. Once we finalized the design, we transitioned to a custom 3D-printed chassis for assembling the mechanical parts. This choice proved to be superior, resulting in a lighter and more compact structure that offered greater design flexibility compared to the Lego-based framework. The chassis accommodates the drivetrain and steering mechanism and includes designated mounts for securing the drive motor and servo motor.
+
+Incorporating a LIDAR system necessitated maintaining all components, except for the LIDAR itself, below a certain height (approximately 8 cm, slightly less than the wall height) to ensure an unobstructed field of view for the sensor. Consequently, we had to extend the robot's length more than preferred, but this was an essential compromise. The drive motor extends out from the back of the robot, while the servo motor is centrally positioned directly beneath the LIDAR. Due to spatial constraints preventing the servo motor from being placed higher, we relinquished the all-wheel drive in favor of an alternative configuration. The gyroscope sensor is also mounted on the chassis, positioned near the drive motor.
+
+![Chassis/Body - 3D Model](./images/resources/chassis.jpg "Powertrain - 3D Model")
 
 
 # Power and Sense Management <a class="anchor" id="power-and-sense-management"></a>
 
-Last year we've made a robot that used Raspberry Pi, but also Arduino. After the international in Germany, we've come to a conclusion, that we  need just a microcontroller. So we've searched and found the perfect mach, the Teensy 4.1 board.
+### Li-Po Battery <a class="anchor" id="li-po-battery"></a>
+![Li-Po Battery](./images/resources/battery.png "Li-Po Battery")
+
+Last year, we powered our robot with a 6-pack of AA Nickel-Metal Hydride (NiMH) batteries, which provided approximately 7.2V and 2000mAh but weighed around 650g. With our goal of building a smaller and lighter robot, we recognized the need for a different power source. We chose a Lithium Polymer (Li-Po) battery for its lighter weight, more compact size, and quicker charging capabilities. The specific model we selected is the *LiPo GENS ACE Soaring* (7.4V, 2200mAh, 20C). Switching to this battery reduced the weight of our power pack from 650g to 100g, almost halving the robot's weight. Moreover, the battery is more than twice as small in terms of volume.
+
+Where to buy the battery: https://www.sierra.ro/Acumulator-LiPo-GENS-ACE-Soaring-7-4-V--2200-mA--20C-p11141p.html
 
 ### Teensy 4.1 <a class="anchor" id="teensy-4.1"></a>
 ![Teensy 4.1](./images/resources/teensy.jpg " Teensy 4.1")
 
-Why did we choose this board, you may ask. Well, we wanted to have as more special pins (example IC2 and interrupt pins) and is much faster in comparison to the arduino, the teensy having a 600 MHz frequency and a flash memory of 8 Mbytes, while an Arduino Every (this arduino board we've used last year) has a 20MHz freqency and a flash memory of 48 KB.
+At WRO2022 Future Engineers, we used a Raspberry Pi 3B+ in conjunction with an Arduino Uno Every through a serial connection. The Raspberry Pi was tasked with processing images from the camera, whereas the Arduino was dedicated to controlling the motors and collecting sensor data. This method, however, was not optimal. The processing speed of the Raspberry Pi fell short of our requirements, the serial link between the two boards was not as quick as necessary, and it also carried the risk of data loss.
 
-So this year our work was much easier, because we didn't have problems, such as trying to connect the Raspberry Pi to the Arduino board, which made our sensors reading slower (we had to send the readings to the Raspberry Pi and make the Arduino wait for the Raspberry to procces it). Now we could procces the readings of the sensors on the same board, which made our data more accurate.
+Following the international competition in Dortmund, we discovered the Pixycam 2.1, a camera equipped with its own processing capabilities that can directly connect to an Arduino or other microcontrollers. With the Pixycam 2.1, we were able to remove the Raspberry Pi, thereby enhancing our robot's speed. We also upgraded from the Arduino Uno Every to a Teensy 4.1, which boasts much faster processing power.
 
-### RPLIDAR A1 <a class="anchor" id="lidar"></a>
-![lidar](./images/resources/lidar_sensor.jpg " RPLIDAR A1")
+| Specification | Arduino Nano Evey | Teensy 4.1 |
+| :--: | :--: | :--: |
+| Clock Speed | 20MHz | 600 MHz |
+| CPU Flash Memory | 48 KB | 8 Mbytes |
+| CPU RAM | 6 KB | 1 MB |
+| Digital I/O Pins | 20 | 42 |
+| PWM Pins | 7 | 14 |
+| UART | 1 | 6 |
+| SPI | 1 | 3 |
+| I2C | 1 | 3 |
 
-Regarding the distance sensor, it is a long story. At first, after the international we thought that using a lidar (VL53L0X) sensor for measuring distances was a great idea, but it turned out that it wasn't. Because the VL53L0X sensor is using a laser to measure the distances, the color of the object that the laser reaches influences the data that the sensor is reading. We discovered this by testing, by observing that, because the walls are black, the data that we were reading with the sensor was not accurate if the distance from the lidar to the walls was bigger than 70cm, which isn't the result we wanted. 
+Where to buy the Teensy 4.1: https://www.pjrc.com/store/teensy41.html
 
-After this, we searched so much more and found out that we can gain precision by using a RPLIDAR A1, specifically RPLIDAR A1M8, which is a 360 degree 2D laser scanner (LIDAR). Why is this sensor better than VL53L0X, you may ask. Well the first big difference between the two is the data that we can process. The RPLIDAR A1 is constantly rotating and measuring the distances in all directions. Meanwhile the VL53L0X sensor could measure the distance in a single direction. So this way with the RPLIDAR A1 we could map and determine the walls positions, cubes positions and the robot position at any time we want. Another difference between the sensors is the precision. The RPLIDAR A1 is more precise than the VL53L0X.
+### LIDAR <a class="anchor" id="lidar-sensor"></a>
+![RPLIDAR A1](./images/resources/RPLIDAR_A1.png "RPLIDAR A1")
 
-So how is RPLIDAR A1 working? RPLIDAR is based on laser triangulation ranging principle, and it measures distance data in more than 2000 times per second with high resolution distance output (<1% of the distance).
-The sensor emits modulated infrared laser signal, the laser signal is then reflected by the object to be detected. The returning signal is sampled by vision acquisition system in RPLIDAR A1 and the DSP embedded in RPLIDAR A1 starts processing the sample data and output distance value and angle value between object and RPLIDAR A1.
+The LIDAR A1 sensor is a crucial component of our robot. It provides the robot with a 360° view of its surroundings, allowing it to detect obstacles and avoid collisions. We selected the RPLIDAR A1, which is a low-cost LIDAR system that offers a 360° scan at a frequency of 10Hz. The sensor is equipped with a 2D laser scanner that can detect objects up to 8 meters away. The sensor is wired to the Teensy 4.1 via the SDA and SCL pins.
 
-To connect the scanner to the teensy we have seven cables. Three for controlling the motor, which is rotating the sensor, and the other 4 are for powering the lidar and reading data. The pins for reading data are PIN0 and PIN1, and the PWM pin for the motor is PIN2.
+In the lead-up to the World Robot Olympiad (WRO) 2022, an iterative process of solution development was undertaken, aiming to resolve the persistent challenge of precise robot localization and obstacle detection under variable environmental conditions. The trials encompassed the deployment of both ultrasonic and infrared sensors. However, these sensors exhibited limitations in terms of angular sensitivity and dependability, influenced by the robot's orientation, which impeded their effectiveness for consistent environmental navigation and recognition tasks.
 
-### Gyro sensor (BMI088) <a class="anchor" id="gyro-sensor-(BMI088)"></a>
-![Gyro sensor (BMI088)](./images/resources/gyro.jpg "Gyro sensor (BMI088)")
+Where to buy the RPLIDAR A1: https://www.adafruit.com/product/4010
 
-Another sensor that amazed us is the gyro sensor. In the previous year the gyro sensor (MPU6050) was ok, but still had a relatively big drift. However this year, we've solved that problem and now the gyro is one of the most accurate sensors we have. We are using the Grove 6 Axis Accelerometer and Gyroscope BMI088. This sensor is based on Bosch BMI088, which is widely used for drones. The gyro is wired to a SDA and SCL pin on the teensy (the SDA pin is PIN18 and the SCL pin is PIN19 on the board). Also we have two more pins, the INT1 and INT2 pins (interrupt pins) that are connected to PIN14, respectively PIN15 to the board.
+### IMU <a class="anchor" id="imu-sensor"></a>
+![IMU Sensor - BMI088](./images/resources/gyro.jpg "IMU Sensor - BMI088")
 
-### Li-Po Battery <a class="anchor" id="li-po-battery"></a>
-![Li-Po Battery](./images/resources/battery.png "Li-Po Battery")
+One importat aspect that helps the roboy navigate is the inertial measurement unit (IMU). After using the MPU6050 last year, we decided to upgrade to a better IMU. This sensor is based on BOSCH BMI088, which is a high-performance IMU with high vibration suppression. While the IMU measure the angular velocity and the acceleration of the robot, we only use the angular velocity to calculate the angle of the robot. The IMU is wired to the SDA and SCL pins on the teensy.
 
-As for the battery, last year we used a 6 pack of AA Nickel–metal hydride batteries, which generated about 7.2V, 2000mAh and had a weight of about 650g. After we decided to make a smaller and lighter robot, we knew that the battery had to change. We went with a Li-Po battery, as they are lighter, smaller, and charge faster. The battery that we chose is the _LiPo GENS ACE Soaring_ (7.4V, 2200mAh, 20C). This took the weight of the batterypack from 650g to 100g, which made the robot 2 times as light. To add, it is more than 2 times smaller in volume.
+**Specifications:**
+- Gyroscope range: ±2000°/s
+- Accelerometer range: ±24g
 
-### PixyCam 2.1 <a class="anchor" id="pixy-cam-2.1"></a>
-![PixyCam 2.1](./images/resources/pixy.png "PixyCam 2.1")
+Where to buy the gyro sensor: https://www.seeedstudio.com/Grove-6-Axis-Accelerometer-Gyroscope-BMI088.html
 
-One of our biggest drawbacks last year was the speed of the camera readings. We were using a Raspberry Pi with the PiCam V2. Mainly because we had to do the cube recognition machine learning algorithm and procces it on the Raspberry Pi, the fps of the proccesed images was pretty low, about 15. This also cost the other readings on the Raspberry Pi to slow down.
+### Pixycam 2.1 <a class="anchor" id="pixy-cam-2.1"></a>
+![Pixycam 2.1](./images/resources/pixy.png "Pixycam 2.1")
 
-Because of this, we opted for the Pixy cam 2.1, which has a quite a few advantages: it has it's own processing power, so it doesn't slow the other components down; it has a expert made machine learning algorithm for detecting and traking objects, so it works really well; it can output directly to an arduino or another microcontroller, so a Raspberry Pi isn't necessary, which can increase the frequency of the readings.
+Last year, one of our main challenges was the slow speed of the camera feed. We were utilizing a Raspberry Pi equipped with a PiCam V2. The delay was primarily due to the need to run a cube recognition machine learning algorithm on the Raspberry Pi itself, which limited the processed image feed to around 15 frames per second. This not only reduced the camera's efficiency but also slowed down the processing of other tasks on the Raspberry Pi.
+
+To address this, we switched to the Pixycam 2.1, which offers several significant benefits: it possesses its own processing unit, thus preventing any lag in the rest of the system; it comes with a professionally developed machine learning algorithm for object detection and tracking, which performs reliably; and it can directly interface with an Arduino or another microcontroller, eliminating the need for a Raspberry Pi and so increasing the frequency of the readings.
+
+Together with the Teensy 4.1, the camera delivers readings at approximately 60 frames per second, a limit we've set ourselves. Additionally, the camera's operation doesn't impact the performance of other sensors, allowing us to take full advantage of their capabilities.
+
+Where to buy the PixyCam 2.1: https://www.robotshop.com/products/charmed-labs-pixy2-robot-vision-image-sensor-lego-rbc
 
 ### Voltage regulator <a class="anchor" id="voltage-regulator"></a>
 ![Voltage regulator (L7805CV)](./images/resources/linear_voltage_regulator.png "Voltage regulator (L7805CV)")
 
-In order to power the teensy with the 5V required, we needed to lower the voltage of the 7.4V battery, that fully charged goes as high as 8.4V. For this we used a linear voltage regulator (L7805CV), that could take any voltage lower than 35V and reduce it to 5V.
+To provide the Teensy 4.1 with the required 5V, we needed to decrease the output from the 7.4V battery, which can reach up to 8.4V when fully charged. We employed a linear voltage regulator, the L7805CV, capable of converting input voltages below 35V down to a steady 5V.
 
-Because we wanted the robot to be as fast as possible, the motor driver is powered directly from the battery, so we can have a voltage as high as possible.
+For the drive motor, which we want to operate at higher speeds, we use a separate voltage regulator, the L7806CV, to step down the battery's 7.4V to 6V. This approach allows us to extract more speed from the motor while maintaining consistent performance across different battery charge levels.
+
+Where to buy the 5V voltage regulator: https://ro.mouser.com/ProductDetail/STMicroelectronics/L7805CV?qs=9NrABl3fj%2FqplZAHiYUxWg%3D%3D
+
+Where to buy the 6V voltage regulator: https://ro.mouser.com/ProductDetail/STMicroelectronics/L7806CV?qs=K4DpzJ20gDEC%252BHE13eVUwg%3D%3D
 
 ### Circuit diagram <a class="anchor" id="circuit-diagram"></a>
-![Circuit diagram](./images/resources/circuit.png "Circuit diagram")
+![Circuit diagram](./electrical-diagram/circuit.png "Circuit diagram")
 
 <br>
 
-# Obstacle Management <a class="anchor" id="obstacle-management"></a>
+# Code for each component <a class="anchor" id="code-for-each-component"></a>
 
-As we mentioned above we utilize the A1M8 360° LiDAR scanner to meticulously measure distances, enabling comprehensive spatial data acquisition. Subsequent data analysis allows us to establish correlations between points, facilitating the construction of detailed representations of the walls and complex geometric entities.
+## Drive Motor <a class="anchor" id="drive-motor-code"></a>
 
-In this research, the A1 LiDAR is interfaced with a Teensy microcontroller via a UART connection, initiating the 'scan_express' mode for rapid data acquisition at a 10Hz frequency across a 360° field. The data is transmitted in 32-point buffers. To ascertain accurate angular measurements, we employ a differential approach, comparing consecutive readings, and implement angle compensation based on the values obtained, thereby enhancing the precision of our measurements.
+The motor driver can be directly managed with a single PWM pin that adjusts the motor's speed and two digital pins designated for determining the motor's rotation direction. Consequently, the use of any external library for motor manipulation was unnecessary.
 
-The LiDAR sensor yields a dataset for each point, comprising both distance (measured in millimeters) and angle (measured in degrees). Our objective is to convert these polar coordinates into Cartesian coordinates (x, y), and subsequently adjust their positioning due to the LiDAR’s inverted orientation, which is designed for spatial efficiency.
-We can do the conversion by using the equations below.
-
-```
-x= -distance * cos(angle) 
-y= -distance * sin(angle)
-```
-
-In which the angle needs to be mesure in radians and the ditances is in mm. You can spot these relations in our function _lidarProcessingData_ writen below.
+We devised two functions within our control system: one to modify the motor's velocity and another to halt it effectively, incorporating a braking feature. To achieve this, we convert the desired speed from our established scale of -100 to +100 to the PWM equivalent of 0 to 255. The motor's direction is then adjusted according to the sign of the input value.
 
 ```ino
-// Getting angle compensation
-double getDiffAngle(byte data_angle) {
-    bool sign = data_angle >> 7;
-    double diff_angle = (double)(data_angle & 0b1111111) / (1 << 3);
-    if (sign) {
-        diff_angle = -diff_angle;
+void motor_start(int speed) {
+  speed = -speed;  
+  int out = abs(speed) * 2.55; // Convert speed to PWM value (0 to 255)
+  if(speed >= 0) { // Forward direction
+    digitalWrite(AIN1, HIGH);
+    digitalWrite(AIN2, LOW);
+  }
+  else { // Reverse direction
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, HIGH);
+  }
+  analogWrite(PWM1, out);
+
+  Serial << "speed: " << speed << "\n";
+}
+
+void motor_stop() {
+  motor_start(-10); 
+}
+```
+
+However, for the encoder, we required a specialized library to handle the more complex signal processing. The library we use for interfacing with the encoder is called *Encoder.h*.
+
+The encoder operates with a straightforward function that we found easy to comprehend and program. The constant with which we multiply the encoder's output value was determined empirically through multiple tests with varying distances. This calibration process allowed us to accurately convert the encoder's readings into centimeters.
+
+```ino
+long read_motor_encoder() {
+  return (0.01285) * (double)myEnc.read();
+}
+```
+
+## Servo Motor <a class="anchor" id="servo-motor-code"></a>
+
+For controlling the servo motor, we utilize the *Servo.h* library, which provides the necessary functions to manage the servo's movements. Initially, we configure the servo by establishing its range, defining the maximum and minimum angles it can achieve in both directions. This ensures that we can accurately position the servo within its operational limits.
+
+```ino
+// Servo
+void servo_setup() {
+  servo.attach(SERVO_PIN, 1400, 1611);
+  move_servo(0);
+  delay(50);
+}
+```
+
+The function *move_servo* makes the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
+
+```ino
+void move_servo(double angle) {
+  angle = clamp(angle + servo_correction, -1, 1);
+
+  double angle_deg = 90 + angle * 90.0;  // Convert angle to degrees (0 to 180)
+  angle_deg = clamp(angle_deg, 0, 180);
+  servo.write(angle_deg);
+}
+```
+
+## Camera <a class="anchor" id="camera-code"></a>
+
+Now that we finished to implement the functions we need to make the robot move and steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_. The I2C address must be configured in the _Pixy2I2C.h_ library.
+
+```ino
+void camera_setup(bool debug) {
+  if (debug) Serial.println(F("Camera starting..."));
+  //display_print("Cam err!");
+  pixy.init(0x54);
+  if (debug) Serial.println(F("Camera ok!"));
+
+  pixy.getResolution();
+  image_w = pixy.frameWidth;
+  image_h = pixy.frameHeight;
+  // Serial << image_w << " " << image_h << '\n';
+}
+```
+
+In order to read the inputs from the camera, we have some methods from the Pixy2I2C class.
+
+```ino
+pixy.ccc.blocks[i].m_signature
+// The signature number of the detected object
+// For us, 1 is for red, and 2 is for green
+pixy.ccc.blocks[i].m_x
+// The x location of the center of the detected object (0 to 316)
+pixy.ccc.blocks[i].m_y
+// The y location of the center of the detected object (0 to 208)
+pixy.ccc.blocks[i].m_width
+// The width of the detected object (1 to 316)
+pixy.ccc.blocks[i].m_height
+// The height of the detected object (1 to 208)
+pixy.ccc.blocks[i].m_indez
+// The tracking index of the block
+```
+
+For the camera we made a function in which we are reading the color of the cube in front of us.
+
+```ino
+void read_camera(bool debug) {
+  if (millis() - last_camera_read >= camera_interval) {
+    pixy.ccc.getBlocks();
+
+    if(pixy.ccc.numBlocks < 1)
+      cube_color = 0;
+    else
+      cube_color = sig_to_col[pixy.ccc.blocks[0].m_signature];
+
+    last_camera_read = millis();
+  }
+}
+```
+
+## LIDAR <a class="anchor" id="lidar-code"></a>
+
+Extracting data from the LIDAR involves processing a continuous stream via Serial1. The lidarRead() function reads bytes one at a time, confirming the correct sequence before storing them in a buffer. Once enough data is gathered, it's processed to inform the robot's navigation. If the buffer is full, the data is saved for later use and the buffer is reset for new data. This method ensures the robot receives reliable information for obstacle detection and avoidance.
+
+```ino
+void lidarRead() {
+    if (!Serial1.available()) {
+        return;
     }
-    return diff_angle;
-}
+    byte current_byte = Serial1.read();
+    if (lidar_buff_ptr == 0) {
+        if ((current_byte >> 4) != 0xA) {
+            return;
+        }
+    } else if (lidar_buff_ptr == 1) {
+        if ((current_byte >> 4) == 0xA) {
+            lidar_buff_ptr = 0;
+        } else if ((current_byte >> 4) != 0x5) {
+            lidar_buff_ptr = 0;
+            return;
+        }
+    }
 
-double angleDiff(double old_angle, double now_angle) {
-    return old_angle <= now_angle ? now_angle - old_angle : now_angle - old_angle + 360;
-}
+    lidar_buff[lidar_buff_ptr++] = current_byte;
 
-// Processing data from the lidar
+    if (lidar_buff_ptr == 4) {
+        lidarProcessingData();
+    }
+
+    if (lidar_buff_ptr == 84) {
+        memcpy(lidar_old_buff, lidar_buff, 84);
+        lidar_buff_ptr = 0;
+    }
+}
+```
+
+The lidarProcessingData() function interprets raw LIDAR data to map out the robot's surroundings. It calculates the starting angle of the scan and then iterates over the data to determine distances and angles for various points. These values are then adjusted for the robot's current orientation, converted into X and Y coordinates, and filtered to ignore any out-of-range readings. If the readings are valid, they're processed further to assist the robot in navigation and obstacle avoidance.
+
+```ino
 void lidarProcessingData() {
 
     double start_angle = (((uint16_t)(lidar_buff[3] & 0b01111111) << 8) ^ lidar_buff[2]) / 64.;
@@ -256,40 +392,19 @@ void lidarProcessingData() {
             x = -distance[j] * sin(radians(gx_angle));
 
             if(distance[j] > 5 && distance[j] < 4000) {
-              // Serial << x << " " << y << '\n';
-              // Serial << distance[j] << " " << gx_angle << '\n';
               lidarProcessPoint(Angle(distance[j], gx_angle), Point(x, y));
             }
-
         }
     }
 }
 ```
-How do we know it's a wall or a cube you may ask. The task at hand involves identifying adjacent data points, a process that might seem straightforward initially—simply determining the "closeness" of the points. However, the reality is more nuanced. Given the LiDAR's fixed angular resolution, the gap between consecutive points expands with their distance, complicating the identification process.
 
-The elegance of machine learning shines through in our project, where we applied polynomial regression to a dataset. Our goal was to find the right coefficients to correlate the distances of data points, enhancing our understanding of their relationships on a linear path.
+The *calculate_linear_regression_segment* function performs a linear regression analysis on a set of data points from LIDAR readings to determine the linear path that best fits the trajectory of an observed barrier. It computes the line's gradient and intercept, pinpoints the coordinates for the beginning and end of the trajectory, and ascertains the barrier's direction in relation to the robot's orientation. Additionally, this function measures the shortest distance from the robot to the barrier.
+
+Another part of the code accumulates data points into a 'current line' array if they are incrementally consistent in distance and direction with the previously recorded point. When this collection reaches a certain size, or there is a notable shift in the data points' position or angle, it initiates the aforementioned linear regression analysis on the gathered segment. Should the barrier be located at a substantial distance, this detected range is then updated. Special conditions within the function are also set to recognize the contours of a cube, modifying the cube's recorded distances as needed when certain parameters are fulfilled.
+
 
 ```ino
-#define MAX_POINTS 1000
-#define INF 10000
-
-bool wall_updated[WALL_NR] = {1, 1, 1, 1};
-
-double old_ang = 10000;
-double old_dist = 10000;
-
-Point current_line[MAX_POINTS];
-int current_line_size = 0;
-
-double calculate_threshold(double distance) {
-  double a = 0.0010947040728267199;
-  double b = -0.46574727812407213;
-  double c = 56.010728111461475;
-  double points = a * distance * distance + b * distance + c;
-  double threshold = max(7.0, points);  // Ensure threshold is at least 7
-  return threshold;
-}
-
 void calculate_linear_regression_segment(Point& start, Point& end, double& dist, int& dir) {  
   if(current_line_size < 2) return; // Not enough points for regression
   
@@ -320,24 +435,123 @@ void calculate_linear_regression_segment(Point& start, Point& end, double& dist,
 
   dist = abs(c) / sqrt(1 + m * m);
 
-  if(abs(m) < 1) {
-    if((start.y + end.y) / 2 < 0)
+  if(abs(m) < 0.4) {
+    if((start.y + end.y) / 2 < 0) 
       dir = BACK;
-    else
+    else 
       dir = FRONT;
   } else {
     if((start.x + end.x) / 2 < 0)  {
       dir = LEFT; 
     }
-    else
+    else {
       dir = RIGHT;
+    }
   }
+  slopes[dir] = m;
+}
+
+void lidarProcessPoint(Angle angl, Point p) {
+  double ang, dist;
+  ang = angl.ang;
+  dist = angl.dist;
+
+  if(abs(dist - old_dist) < 10 && min(abs(ang - old_ang), 360 - abs(ang - old_ang)) < 1.5) {
+    current_line[current_line_size++] = p;
+  } else {
+      if(current_line_size > calculate_threshold(old_dist)) {
+        Point start, end;
+        double wall_d;
+        int wall_dir;
+
+        calculate_linear_regression_segment(start, end, wall_d, wall_dir);
+
+        if(wall_d > 50) {
+          old_wall_dist[wall_dir] = wall_dist[wall_dir];
+          wall_dist[wall_dir] = wall_d;
+          if(wall_dir == FRONT && (wall_dist[FRONT] + wall_dist[BACK]) < 2800) {
+            wall_dist[BACK] = 3050 - wall_d;
+          }
+          wall_updated[wall_dir] = true;
+        }
+
+      }
+      else if(current_line_size > 2 && (abs(dist - old_dist) > 20 || 
+      abs(ang - old_ang) > 5) && (old_ang > 120 && old_ang < 240) &&
+       old_dist < 1000 && old_dist > 100 && (wall_dist[BACK] < 1500 ||
+        wall_dist[FRONT] > 1400)) {
+        xa = current_line[current_line_size / 2].x;
+        ya = current_line[current_line_size / 2].y;
+
+        if(xa && ya && wall_dist[side_wall]) {
+          double na = ya - slopes[side_wall] * xa;
+          dist_to_cube = (-1) * na / sqrt(slopes[side_wall] * slopes[side_wall] + 1);
+          //left
+          if(dist_to_cube && !last_dist_to_cube && cube_color && abs(wall_dist[side_wall] + direction * dist_to_cube) < 850) { 
+            last_dist_to_cube = dist_to_cube;
+            last_cube_y = wall_dist[BACK] + ya;
+            if(last_cube_y > 2000)
+              last_cube_y = 2000;
+            if(last_cube_y < 1000)
+              last_cube_y = 1000;
+          } 
+        }
+      }
+      current_line_size = 0;
+      current_line[current_line_size++] = p;
+  }
+  old_dist = dist;
+  old_ang = ang;
 }
 ```
 
-We also made a python script to help us visualize the objects that the sensor has identified.
+We found that the number of points defining a line decreases with distance in LIDAR data. To predict this variation, we applied a polynomial model that helps improve our detection and mapping accuracy.
 
-```python
+```ino
+import numpy as np
+
+data = np.loadtxt('data.csv', delimiter=',')
+
+distances = data[:, 0]
+points = data[:, 1]
+
+coefficients = np.polyfit(distances, points, 2)
+
+a, b, c = coefficients
+
+print("Best fit parameters: a =", a, "b =", b, "c =", c)
+
+def polynomial_function(D):
+    return a * D**2 + b * D + c
+
+distance = 100
+estimated_points = polynomial_function(distance)
+print("Estimated points at distance", distance, "cm:", estimated_points)
+
+```
+
+```ino
+double calculate_threshold(double distance) {
+  distance /= 10.0; 
+  double a = 0.0010947040728267199;
+  double b = -0.46574727812407213;
+  double c = 56.010728111461475;
+  double points = a * distance * distance + b * distance + c;
+  double threshold = max(7.0, points);  // Ensure threshold is at least 7
+  threshold = min(20, threshold);
+  return threshold;
+}
+```
+
+The gyro sensor's measurement of the robot's rotation angle is essential for precise spatial positioning. This angle adjusts the lidar data to reflect true distances, accounting for changes in position and orientation. Neglecting this leads to mapping inaccuracies, hence, rotation compensation is critical for precise navigation.
+
+### Python Data Visualization <a class="anchor" id="python-data-visualization"></a>
+
+To simplify the configuration process for the LIDAR sensor, we developed a Python script that graphically represents the sensor's data. This script takes the wall segments detected by the LIDAR, illustrates them in a chart, and annotates each with the measured distance from the robot. Below, you'll find a sample visualization generated by this program.
+
+![LIDAR Python Mapping](./images/resources/lidar_mapping.jpg "LIDAR Python Mapping")
+
+```py
 from cmath import cos
 from math import radians, sin, sqrt
 import math
@@ -383,7 +597,6 @@ cubes = []
 m_left = 0
 
 def calculate_linear_regression_segment(points):
-    
     x, y = points[:, 0], points[:, 1]
     A = np.vstack([x, np.ones_like(x)]).T
     m, c = np.linalg.lstsq(A, y, rcond=None)[0]
@@ -423,10 +636,9 @@ def plot_segment_with_coefficient(ax, points, order):
       else:
         color = 'red'
        
-
     ax.plot([x_start, x_end], [y_start, y_end], color=color, linewidth=2)
-
     # get distnace from origin to the line
+    
     ax.text((x_start + x_end) / 2, (y_start + y_end) / 2, f'{round(float(dist), 2)}', 
             horizontalalignment='center', verticalalignment='bottom')
     
@@ -442,7 +654,6 @@ def calculate_threshold(distance):
     return threshold
     
     
-
 # Main loop to continuously read and update data
 while True:
     data = arduino.readline().decode().strip()
@@ -486,9 +697,8 @@ while True:
             colorVec = []
             pointCnt = 0
 
-              # Pause briefly to allow the plot to update
             plt.pause(0.00001)
-        #same lin
+            
         if(abs(dist - old_dist) < 10 and min(abs(ang - old_ang), 360 - abs(ang - old_ang)) < 1.5):
             saveLine.append((point_x, point_y))
         else:
@@ -497,6 +707,8 @@ while True:
               lines.append(np.array(saveLine));
               # save line is a list of tuples
 
+              # data_points.extend(saveLine)
+              # colorVec.extend([colorLines[line_counter]] * len(saveLine))
               line_counter += 1
             elif(len(saveLine) > 2 and (abs(dist - old_dist) > 20 or abs(ang - old_ang) > 5) and (old_ang > 130 and old_ang < 240) and old_dist < 800):
                cubes.append(np.array(saveLine));
@@ -512,512 +724,21 @@ plt.show()
 
 ```
 
-Our qualifying round strategy is simple. It is based only on the readings of the lidar and gyro sensor. We are using a PID controller to make sure the robot stays between the walls at a certain distance and it's as straight as possible. To make sure the robot doesn't bump into the walls we have the PID controller based on the data from the lidar.
+## IMU <a class="anchor" id="gyro-sensor-code"></a>
+
+To utilize the gyro sensor, we needed to include the _BMI088.h_ library. During initialization, we allocate a 10-second window to measure the sensor's drift, allowing us to refine the robot's angular readings for greater precision. Additionally, we configure the sensor's output data rate to 400Hz and set the bandwidth to 47Hz. The bandwidth determines the frequency of data sampling by the sensor; a higher bandwidth yields more precise data at the cost of increased power consumption. We also designate pin 15 as an input and attach an interrupt to it, enabling us to capture data from the sensor as soon as it becomes available.
 
 ```ino
-move_servo(pid_error); 
-pid_error = (wall_dist[RIGHT] - wall_dist[LEFT]) * kp + (pid_error - pid_last_error) * kd;
-pid_last_error = pid_error;
-last_time_pid = millis();
-```
-
-Similar to the PID controller based on the lidar we have a PID controller that uses the data from the gyro. That way we can make sure our robot is straight all the time.
-
-```ino
-pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-pid_last_error_gyro = pid_error_gyro;
-
-move_servo(pid_error_gyro); 
-```
-
-The final code for the qualifying is structured as a machine state. The first state is the _SECTION_ state, in which there are de PID contollers. The second state is _ROTATE_, in which the robot makes the turn to go to the next section. And last we have the _STOP_ section, that stops the motors of the robot.
-
-```ino
-switch(CASE) {
-   case SECTION: {
-     if(wall_dist[FRONT] > 0 && wall_dist[FRONT] < 500) {
-       writeSD(1, -1, -1, -1);
-       pid_case = 0;
-       current_angle += direction * 90;
-       turns++;
-       last_rotate = millis();
-       CASE = ROTATE;
-     }
-     else if(abs(pid_error) <= 0.15 || abs(wall_dist[RIGHT] - wall_dist[LEFT]) > 1200) {
-       pid_case = 1;
-       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro); 
-     }
-     else {
-       if(millis() - last_time_pid > 10 && wall_dist[LEFT] && wall_dist[RIGHT] && abs(wall_dist[RIGHT] - wall_dist[LEFT]) < 1200) {
-         pid_case = 2;
-         move_servo(pid_error); 
-         pid_error = (wall_dist[RIGHT] - wall_dist[LEFT]) * kp + (pid_error - pid_last_error) * kd;
-         pid_last_error = pid_error;
-         last_time_pid = millis();
-       }
-     }
-     break;
-   }
-   case ROTATE: {
-     if((wall_dist[RIGHT] - wall_dist[LEFT]) < 1200 && abs(current_angle - gx) < 5 && millis() - last_rotate >= 1000) {
-       if(turns >= 12) 
-         CASE = STOP;
-       else
-         CASE = SECTION;
-     } else {
-       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro); 
-     } 
-     break;
-   }
-   case STOP: {
-     delay(500);
-     move_servo(-1);
-     motor_start(-5);
-     Serial.println("Stop case");
-     writeSD(-1, -1, -1, -1);
-     delay(100000);
-     break;
-   }
-   default: {
-     break;
-   }
- }
-```
-
-The next step in solving this year's challenge is to make the robot avoid the obstacles. For this we are not only using the lidar sensor and gyro, but also the PixyCam to detect the color of the cubes.
-
-The code for the final round, is similar to the one of the qualifying one. Is structured as a machine state, consisting of 5 states, respectively _SECTION_, _AVOID_CUBE_, _PASS_CUBE_, _ROTATE_, _STOP_.
-
-```ino
-switch (CASE) {
-
-   case SECTION: {
-     if(wall_dist[RIGHT] > 1500 && wall_dist[FRONT] && wall_dist[FRONT] < 1000 && millis() - last_rotate > rotate_timeout) {
-       turns++;
-       last_rotate = millis();
-       last_cube_color = 0;
-       flag = 0;
-       if(wall_dist[LEFT] > 400)
-         CASE = ROTATE;
-       else
-         current_angle += 90;
-     }
-     else if(last_dist_to_cube && cube_color && wall_dist[LEFT] && wall_dist[BACK] < 1800) {
-       move_servo(cube_color * 1);
-
-       if (cube_color == GREEN)
-         goal_distance = (wall_dist[LEFT] + last_dist_to_cube) / 2 + 150;
-       else
-         goal_distance = (1000 + wall_dist[LEFT] + last_dist_to_cube) / 2 - 200;
-
-       last_cube_color = cube_color; 
-
-       CASE = AVOID_CUBE;
-     } else {
-       pid_error_gyro = ((current_angle + last_cube_color * 0) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro); 
-     }
-   }
-
-   case AVOID_CUBE: {
-     if(last_cube_color == GREEN && wall_dist[LEFT] < goal_distance || last_cube_color == RED && wall_dist[LEFT] > goal_distance) {
-       CASE = PASS_CUBE;
-     } else if(abs(current_angle - gx) > 55){
-       move_servo(0);
-     }
-     break;
-   }
-
-   case PASS_CUBE: {
-     if(wall_dist[BACK] > last_cube_y + 100) {
-       last_dist_to_cube = 0;
-       CASE = SECTION;
-     } else {
-       pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro); 
-     }
-     break;
-   }
-
-   case ROTATE: {
-     if(abs((current_angle - 270) - gx) < 5) {
-       current_angle -= 270;
-       last_rotate = millis();
-       CASE = SECTION;
-     } else if((wall_dist[LEFT] > 500 || wall_dist[FRONT] > 300) && (wall_dist[LEFT] > 350 || wall_dist[FRONT] > 200) && flag == 0) {
-       ang = myacos((wall_dist[FRONT] - 300) / 
-       sqrt((wall_dist[FRONT] - 300) * (wall_dist[FRONT] - 300) + (wall_dist[LEFT] - 500) * (wall_dist[LEFT] - 500)));
-
-       pid_error_gyro = ((current_angle - ang) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro);
-     } else {
-       // CASE = STOP;
-       flag = 1;
-       pid_error_gyro = ((current_angle - 270) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
-       pid_last_error_gyro = pid_error_gyro;
-
-       move_servo(pid_error_gyro); 
-     }
-     break;
-   }
-
-   case STOP: {
-     lidarMotorWrite(0);
-     move_servo(0);
-     motor_start(-10);
-     Serial.println("Stop case");
-     delay(100000);
-     break;
-   }
-   
-   default: {
-       break;
-   }
- }
-```
-<br>
-
-# Code for each component <a class="anchor" id="code-for-each-component"></a>
-
-## Drive Motor <a class="anchor" id="drive-motor-code"></a>
-
-We didn't need to include a specific library to control the motor driver, beacause arduino (and Teensy) have inbuilt functions for this. 
-
-First, we define the pins we need.
-
-```ino
-/// Motor pins
-#define PWM1 7
-#define AIN1 9
-#define AIN2 8
-```
-
-After the we've defined the pins, we had to make the motors move. The fuction that makes the motor start is named _motor_start_, which has a parameter for setting the speed of the motor. We also have a function that stops the motor, _motor_stop_ function. Because of the inertia we had to set the speed of the motor to combat it, that's why we have a _motor_start(-10)_ in _motor_stop_, in order to stop the robot moving.
-
-```ino
-void motor_start(int speed) {
-  speed = -speed;  
-  int out = abs(speed) * 2.55; // Convert speed to PWM value (0 to 255)
-  if(speed >= 0) { // Forward direction
-    digitalWrite(AIN1, HIGH);
-    digitalWrite(AIN2, LOW);
-  }
-  else { // Reverse direction
-    digitalWrite(AIN1, LOW);
-    digitalWrite(AIN2, HIGH);
-  }
-  analogWrite(PWM1, out);
-
-  Serial << "speed: " << speed << "\n";
-}
-
-void motor_stop() {
-  motor_start(-10); 
-}
-```
-
-If we didn't import a library for the motor, for the encoder we had to. The library we are using is named _Encoder.h_. 
-
-```ino
-#include <Encoder.h>
-```
-
-Like earlier, the first step is to define the pins we are going to use for the component.
-
-```ino
-// Motor Encoder
-#define ENCODER_PIN1 5
-#define ENCODER_PIN2 4
- ```
-
-Compared to the motor, we need to initialize the encoder.
-
-```ino
-// Motor encoder
-Encoder myEnc(ENCODER_PIN1, ENCODER_PIN2);
-```
-
-The encoder has only one function, and lucky for us it is quite easy to understand it and code it. The constant, with which we are dividing the value that the encoder has returned us, was calculated by testing of different lengths, so we are transforming the reading of the encoder in cm.
-
-```ino
-long read_motor_encoder() {
-  return (0.01285) * (double)myEnc.read();
-}
-```
-
-## Servo Motor <a class="anchor" id="servo-motor-code"></a>
-
-The last component we needed to program in order for the robot to move and steer is the servo motor. The library we used is _Servo.h_.
-
-```ino
-#include <Servo.h> 
-```
-
-The first step is to define the pin, initialize the servo and set it up.
-
-```ino
-// Servo 
-#define SERVO_PIN 10
-Servo servo;
-
-void servo_setup() {
-  #ifdef QUALI
-  servo.attach(SERVO_PIN, 1400, 1611);
-  #else
-  servo.attach(SERVO_PIN, 1400, 1611);
-  #endif // QUALI
-
-  move_servo(0);
-  delay(50);
-}
-```
-
-And the second step, is the function, in which we make the servo to rotate a specific angle, given by the parameter _angle_. If the angle is negativ the motor will rotate to the left, and if is pozitiv the motor will rotate to right. This way 0 is going to be the position, in which the wheels are straight. Also, the values we are giving the motor need to be between -1 and 1, so we use a clamp function to limit the value we are going to give the motor to roatate to.
-
-```ino
-/// Servo functions
-
-void move_servo(double angle) {
-  angle = clamp(angle + servo_correction, -1, 1);
-
-  double angle_deg = 90 + angle * 90.0;  // Convert angle to degrees (0 to 180)
-  angle_deg = clamp(angle_deg, 0, 180);
-  servo.write(angle_deg);
-}
-```
-
-## Camera <a class="anchor" id="camera-code"></a>
-
-Now that we finished to implement the functions we need to make the robot move and steer, we have to make him see the cubes and move according to them. The library we used for the camera is _Pixy2I2C.h_.
-
-```ino 
-#include <Pixy2I2C.h>
-```
-
-We need to initialize the camera. There are no pins, as we have a I2C connection. The I2C address must be configured in the _Pixy2I2C.h_ library. We also need to set up the camera.
-
-```ino
-// Camera
-Pixy2I2C pixy;
-
-#define LINE -1000
-const int sig_to_col[] = { 0, 1, -1, LINE, LINE };  // 0 - none, -1 - green, 1 - red
-
-bool sees_line;
-
-int image_w, image_h;
-
-void camera_setup(bool debug) {
-  if (debug) Serial.println(F("Cameras starting..."));
-  //display_print("Cam err!");
-  pixy.init(0x54);
-  if (debug) Serial.println(F("Cameras ok!"));
-
-  pixy.getResolution();
-  image_w = pixy.frameWidth;
-  image_h = pixy.frameHeight;
-  // Serial << image_w << " " << image_h << '\n';
-}
-```
-
-In order to read the inputs from the camera, we have some methods from the Pixy2I2C class.
-
-```ino
-pixy.ccc.blocks[i].m_signature
-// The signature number of the detected object
-// For us, 1 is for red, and 2 is for green
-pixy.ccc.blocks[i].m_x
-// The x location of the center of the detected object (0 to 316)
-pixy.ccc.blocks[i].m_y
-// The y location of the center of the detected object (0 to 208)
-pixy.ccc.blocks[i].m_width
-// The width of the detected object (1 to 316)
-pixy.ccc.blocks[i].m_height
-// The height of the detected object (1 to 208)
-pixy.ccc.blocks[i].m_indez
-// The tracking index of the block
-```
-
-For the camera we made a function in which we are reading the color of the cube in front of us.
-
-```ino
-void read_camera(bool debug) {
-  if (millis() - last_camera_read >= camera_interval) {
-    pixy.ccc.getBlocks();
-
-    if(pixy.ccc.numBlocks < 1)
-      cube_color = 0;
-    else
-      cube_color = sig_to_col[pixy.ccc.blocks[0].m_signature];
-
-    last_camera_read = millis();
-  }
-}
-```
-
-## RPLIDAR A1M8 Sensors <a class="anchor" id="RPLIDAR-A1M8-sensors-code"></a>
-
-For measuring distances and mapping the walls and cubes we are using the lidar sensor. We don't have a library that we used, we received the data and processed it by ourselves. To do that we had to send the lidar what data we want to send us, by defining vectors with the codes (each action has an unique code for exemple 0xA5, 0x40 for restart) to do that.
-
-```ino
-#define lidarSendBuff(buff) Serial1.write(buff, sizeof(buff))
-
-const byte port_lidar_motor_pwm = 2;
-
-const byte buff_start_express_scan[] = {0xA5, 0x82, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x22};
-const byte buff_reset[] = {0xA5, 0x40};
-```
-The setup of the lidar is a series of different functions, so we'll take it step by step. First we need to give speed to the motor which is rotating the lidar. Then we need to set the data transfer rate between the teensy and sensor, and after this we are resetting the lidar. Like we mentioned above the reset is made by sending the lidar a buffer that contains the command of restart. When we finish restarting the lidar we are reading until the Serial1 is unavailable. And finally we can start the express scan and reading the description, we are doing this by sending a buffer with the commands.
-
-```ino
-// Restarting lidar
-void lidarReset() {
-    lidarSendBuff(buff_reset);
-}
-
-// Starting express scanning
-void lidarStartExpressScan() {
-    lidarSendBuff(buff_start_express_scan);
-}
-
-// Reading the lidar response
-void lidarReadDescription() {
-    for (int i = 0; i < 7; ++i) {
-        long lastTime = millis();
-        Serial.println(i);
-        while (!Serial1.available()) {};
-        Serial1.read();
-    }
-    
-    Serial.println("done");
-}
-
-// Setting the lidar motor speed
-void lidarMotorWrite(int speed_motor) {
-    analogWrite(port_lidar_motor_pwm, speed_motor); 
-}
-
-// Initializing lidar
-void lidarSetup() {
-    lidarMotorWrite(255);
-    delay(100);
-    Serial1.begin(115200);
-    lidarReset();
-    delay(1000);
-    while (Serial1.available()) {
-        Serial1.read();
-    }
-    lidarStartExpressScan();
-    lidarReadDescription();
-}
-```
-
-The next step is to read the data from the lidar. We need to store the data, for that we are using _lidar_buff_ vector. We are reading byte by byte the data and storing it in the vector as we read it.
-
-```ino
-// Reading information from lidar
-byte lidar_buff[84];
-byte lidar_old_buff[84];
-
-int lidar_buff_ptr = 0;
-
-void lidarRead() {
-    if (!Serial1.available()) {
-        return;
-    }
-    byte current_byte = Serial1.read();
-    //Serial.println("Current byte: ");
-    //Serial.println(current_byte);
-    if (lidar_buff_ptr == 0) {
-        if ((current_byte >> 4) != 0xA) {
-            return;
-        }
-    } else if (lidar_buff_ptr == 1) {
-        if ((current_byte >> 4) == 0xA) {
-            lidar_buff_ptr = 0;
-        } else if ((current_byte >> 4) != 0x5) {
-            lidar_buff_ptr = 0;
-            return;
-        }
-    }
-
-    lidar_buff[lidar_buff_ptr++] = current_byte;
-
-    if (lidar_buff_ptr == 4) {
-        lidarProcessingData();
-    }
-
-    if (lidar_buff_ptr == 84) {
-        memcpy(lidar_old_buff, lidar_buff, 84);
-        lidar_buff_ptr = 0;
-    }
-}
-```
-
-## Gyro Sensor <a class="anchor" id="gyro-sensor-code"></a>
-
-We also have a gyroscope to help with driving straight and following a trajectory. For the gyro sensor it was needed to import a library, _BMI088.h_.
-
-```ino
-#include "BMI088.h"
-```
-
-We defined a constant - the period of time in which we are calculating the drift of the gyro, so we know how much we need to correct for it.
-
-```ino
-#define DRIFT_TEST_TIME 10
-```
-
-We had to initilized it first, the parameters are: the I2C port, the address of the sensor, and the address of the accelerometer.
-
-```ino
-
-// Gyro sensor
-Bmi088Gyro gyro(Wire,0x69);
-Bmi088Accel accel(Wire,0x19);
-```
-
-In the setup, we calculate the drift of the gyro, so we can correct for it later.
-
-```ino
-// Gyro sensor
-double gyro_last_read_time = 0;
-double drifts_x = 0;
-
-/// Gyro functions
-
-void gyro_drdy()
-{
-  gyro_flag = true;
-}
-
-void accel_drdy()
-{
-  accel_flag = true;
-}
-
 void gyro_setup(bool debug) {
   int status = accel.begin();
-  status = accel.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);// we a setting the frequency at which we are reading data 
+  status = accel.setOdr(Bmi088Accel::ODR_200HZ_BW_80HZ);
   status = accel.pinModeInt1(Bmi088Accel::PUSH_PULL,Bmi088Accel::ACTIVE_HIGH);
   status = accel.mapDrdyInt1(true);
 
 
   status = gyro.begin();
 
-  status = gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);// we a setting the frequency at which we are reading data 
+  status = gyro.setOdr(Bmi088Gyro::ODR_400HZ_BW_47HZ);
   status = gyro.pinModeInt3(Bmi088Gyro::PUSH_PULL,Bmi088Gyro::ACTIVE_HIGH);
   status = gyro.mapDrdyInt3(true);
 
@@ -1027,12 +748,15 @@ void gyro_setup(bool debug) {
 
   if(status < 0) {
     if(debug) Serial << "BMI Initialization Error!  error: " << status << "\n";
+    //init_error = init_gyro_error = true;
   }
   else  {
     // Gyro drift calculation
     if(debug) Serial.println("Starting gyro drift calculation...");
 
     gx = 0;
+    gy = 0;
+    gz = 0;
 
     gyro_last_read_time = millis();
 
@@ -1041,26 +765,37 @@ void gyro_setup(bool debug) {
       gyro.readSensor();  
       double read_time = millis();
       gx += (gyro.getGyroX_rads() * (read_time - gyro_last_read_time) * 0.001);
+      // gy += (bmi.getGyroY_rads() * (read_time - gyro_last_read_time) * 0.001);
+      // gz += (bmi.getGyroZ_rads() * (read_time - gyro_last_read_time) * 0.001);
 
       gyro_last_read_time = read_time;
     }
 
     drifts_x = gx / DRIFT_TEST_TIME;
+    // drifts_y = gy / DRIFT_TEST_TIME;
+    // drifts_z = gz / DRIFT_TEST_TIME;
 
     if(debug) Serial.print("Drift test done!\nx: ");
     if(debug) Serial.print(drifts_x, 6);
+    if(debug) Serial.print("   y: ");
+    if(debug) Serial.print(drifts_y, 6);
+    if(debug) Serial.print("   z: ");
+    if(debug) Serial.println(drifts_z, 6);
   }
   // Gyro value reset
   gx = 0;
+  gy = 0;
+  gz = 0;
 
   gyro_last_read_time = millis();
 }
 ```
 
-In the _read_gyro_ we are reading the data from the gyro, and we are correcting for the drift. As the gyro is giving us the data in radians, we need to convert it to degrees. Also, we need only the x-axis rotation of the robot, that's why we are only calculating gx.
+Within the *read_gyro* function, we're retrieving data from the gyro sensor and adjusting it to account for any detected drift, enhancing the accuracy of the readings. Since the gyro provides data in radians, a conversion to degrees is necessary for our application. We're focusing solely on the rotation around the x-axis, hence we only compute the *gx* value, which represents the robot's angular rotation in degrees on that specific axis.
 
 ```ino
 void read_gyro(bool debug) {
+  //delta_start = millis();
   if(gyro_flag) {
     gyro_flag = false;
     cnt1++;
@@ -1068,14 +803,21 @@ void read_gyro(bool debug) {
     double read_time = millis();
 
     gx += ((gyro.getGyroX_rads() - drifts_x) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+    //gy -= ((bmi.getGyroY_rads() - drifts_y) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
+    //gz -= ((bmi.getGyroZ_rads() - drifts_z) * (read_time - gyro_last_read_time) * 0.001) * 180.0 / PI;
 
     gyro_last_read_time = read_time;
 
-    if(debug) Serial << "Gyro: gx: " << gx;
+    //delta_gyro = millis() - delta_start;
+    if(debug) Serial << "Gyro: gx: " << gx << "    gy: " << gy << "    gz: " << gz << "\n";
 
     if(debug) {
       Serial.print("Gyro: gx: ");
       Serial.print(gx);
+      Serial.print(" gy: ");
+      Serial.print(gy);
+      Serial.print(" gz: ");
+      Serial.println(gz);
     }
   }
 }
@@ -1083,24 +825,44 @@ void read_gyro(bool debug) {
 
 ## SD Card <a class="anchor" id="sd-card-code"></a>
 
-Because we are using Teensy 4.1, which is a board similar to arduino, we can't see the data the robot is reading in real time, but still need to know what the robot is reading. So we found a solution, which is quite simple. We log everything the robot is reading on a SD, because the Teensy has a port for SD cards, which is perfect in this situation. The libraries we used for this is _SD.h_ and _SPI.h_.
+Utilizing the Teensy 4.1, we encounter the limitation of not being able to monitor the robot's sensor data in real time. Nonetheless, it's essential for us to access this information. Our solution is straightforward: we record all the data the robot collects onto an SD card, taking advantage of the built-in SD card slot on the Teensy board. To facilitate this, we implemented the *SD.h* and *SPI.h* libraries.
+
+To store data onto the SD card, we crafted several functions. The function named *file_print* records data continuously without line breaks, whereas *file_println* appends a newline after each entry. Both functions accept a String parameter, which represents the data being saved.
+
+Additionally, we utilize a function named *writeSD* in our current setup. Its operation is simple: we concatenate data to a string variable, and upon completing this, the entire string is written to the SD card.
 
 ```ino
-#include <SD.h>
-#include <SPI.h>
-```
+/// SD card functions
 
-To use the SD Card we defined the pin we are using.
+void SD_setup() {
+  if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present!");
+    //init_sd_error = true;
+  }
+  else {
+    Serial.println("Card present!");
 
-```ino
-// SD Card
-#define chipSelect BUILTIN_SDCARD
-```
+    // SD.remove("datalog.txt");
 
-For writing data in a file on the SD card we made multiple functions. The function named _file_print_ is writig the date without a newline character in the file, unlike the function _file_println_. Both of them have a parameter of type _String_, which is the data that we are writing in the file. 
+    int i = 0;
+    do {
+      char aux[100];
+      itoa(i, aux, 10);
 
-```ino
-/// SD card
+      memset(sd_filename, 0, sizeof(sd_filename));
+
+      strcat(sd_filename, "datalog_");
+      strcat(sd_filename, aux);
+      strcat(sd_filename, ".csv");
+
+      i++;
+    } while(SD.exists(sd_filename));
+
+    if(debug) Serial.print("Using filename: ");
+    if(debug) Serial.println(sd_filename);
+  }
+}
+
 void file_print(String s) {
   File data_file = SD.open(sd_filename, FILE_WRITE);
   if(data_file) {
@@ -1116,75 +878,314 @@ void file_println(String s) {
     data_file.close();
   }
 }
-```
 
-For the SD card we also have a function called _writeSD_ that we are currently using. The principle of the function is simple. We have a data string to which we keep adding data, and at the end of the function we are printing it on the SD card.
+void writeSD(int aux, int aux2, int aux3, int aux4) {
+  data_string += "time " + String(millis()) + " , "; 
+  data_string += "left " + String(wall_dist[LEFT]) +  " , right " + String(wall_dist[RIGHT]) + " , FRONT " + String(wall_dist[FRONT]) + " , ";
+  data_string += "pd_case: " + String(pid_case) + " , ";
+  data_string += "case: " + String(CASE) + ", ";
+  data_string += "pd err: " + String(pid_error) + " ,gx " + String(gx)+ ", ang:" + String(current_angle)+'\n';
 
-Also in both the qualifing round and final round we have to setup all our components, and we did it like below:
+  if(aux)
+    data_string += "aux: " + String(aux) + ", ";
+  if(aux2)
+    data_string += "aux1: " + String(aux2) + ", ";
+  if(aux3)
+    data_string += "aux2: " + String(aux3) + ", ";
+  if(aux4)
+    data_string += "aux3: " + String(aux4) + ", ";
+
+  if(millis() - sd_last_write_time > 1000) {
+    file_println(data_string);
+    data_string = "";
+    sd_last_write_time = millis();  
+  }
+}
+``` 
+
+<br>
+
+# Obstacle Management <a class="anchor" id="obstacle-management"></a>
+
+## Qualification Round <a class="anchor" id="quali-management"></a>
+
+For the qualifying round, we set up a basic switch-case system to guide our robot. This system tells the robot what to do next, depending on where it is. The robot knows where it is by counting how many times it has turned.
+
+We use three main switch cases: *SECTION*, *ROTATE*, and *STOP*.
+
+In the *SECTION* case, the robot just moves straight. It uses a special tool (PID controller) with a gyro sensor to stay on a straight line. If it gets too close to the walls, it uses another tool (PID controller) with a LIDAR sensor to keep the right distance from the walls. When it comes to a corner, it changes to the *ROTATE* case.
 
 ```ino
-void setup() {
-  Serial.begin(115200);
-
-  servo_setup();
-
-  SD_setup();
-  camera_setup(true); ///we setup the camera only for the run program
-
-  gyro_setup(true);
-  Serial.println("Finished Gyro");
-
-  lidarSetup();
-
-  Serial.println("Finised seting up the lidar");
-
-  motor_driver_setup();
-
-  double start_lidar_time = millis();
-  
-  while(millis() - start_lidar_time < 1000) {
-    lidarRead();
-    read_gyro(false);
+case SECTION: {
+  if(wall_dist[FRONT] > 0 && wall_dist[FRONT] < 500) {
+    writeSD(1, -1, -1, -1);
+    pid_case = 0;
+    current_angle += direction * 90;
+    turns++;
+    last_rotate = millis();
+    CASE = ROTATE;
   }
+  else if(abs(pid_error) <= 0.15 || abs(wall_dist[RIGHT] - wall_dist[LEFT]) > 1200) {
+    pid_case = 1;
+    pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
 
-  motor_start(motor_speed);
+    move_servo(pid_error_gyro); 
+  }
+  else {
+    if(millis() - last_time_pid > 10 && wall_dist[LEFT] && wall_dist[RIGHT] && abs(wall_dist[RIGHT] - wall_dist[LEFT]) < 1200) {
+      pid_case = 2;
+      move_servo(pid_error); 
+      pid_error = (wall_dist[RIGHT] - wall_dist[LEFT]) * kp + (pid_error - pid_last_error) * kd;
+      pid_last_error = pid_error;
+      last_time_pid = millis();
+    }
+  }
+  break;
 }
+```
+
+The *ROTATE* case is for when the robot needs to turn at corners. It decides which way to turn based on which side has more space. If the robot has turned 12 times, it changes to the *STOP* case.
+
+```ino
+case ROTATE: {
+  if((wall_dist[RIGHT] - wall_dist[LEFT]) < 1200 && abs(current_angle - gx) < 5 && millis() - last_rotate >= 1000) {
+    if(turns >= 12) 
+      CASE = STOP;
+    else
+      CASE = SECTION;
+  } else {
+    pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro); 
+  } 
+  break;
+}
+```
+
+The *STOP* case is for when the robot finishes the course. It tells the robot to stop moving.
+
+
+```ino
+case STOP: {
+  delay(500);
+  move_servo(-1);
+  motor_start(-5);
+  Serial.println("Stop case");
+  writeSD(-1, -1, -1, -1);
+  delay(100000);
+  break;
+}
+```
+
+## Final Round <a class="anchor" id="final-management"></a>
+
+For the final round resolution, we adopted a three-tiered modular approach to achieve greater precision and fluidity. The first module is designed for navigating through the current section, the second for detecting and evading any immediate cubes, and the third for executing rotations and setting up for the following section.
+
+The initial segment serves as the core switch-case structure within our code, where we continuously monitor for any cubes to avoid or for cues to initiate a rotation in preparation for the upcoming section. Should neither of these conditions arise, the robot is programmed to maintain a direct trajectory through the segment, ensuring uninterrupted progress.
+
+```ino
+case SECTION: {
+  if(turn_ok && wall_dist[FRONT] && wall_dist[FRONT] < 700  && millis() - last_rotate > rotate_timeout) {
+    turns++;
+    last_rotate = millis();
+    last_cube_color = 0;
+    last_dist_to_cube = 0;
+    flag = 0;
+    cube_section_cnt = 0;
+    if (wall_dist[side_wall] > 550)
+      CASE = ROTATE;
+    else
+      current_angle += direction * 90;   
+  } else if (last_dist_to_cube && cube_color != last_cube_color && cube_color != 0 && wall_dist[BACK] < 1800) {
+    move_servo(cube_color * 1);
+
+    if (cube_color == GREEN) {
+      if(direction == 1)
+        goal_distance = 250 + (wall_dist[side_wall] - 230) / 6;
+      else
+        goal_distance = 850 - (1000 - wall_dist[side_wall]) / 6;
+    } else {
+      if(direction == 1)
+        goal_distance = 770 - (1000 - wall_dist[side_wall]) / 5;
+      else
+        goal_distance = 270 + (wall_dist[side_wall] - 200) / 5;
+    }
+
+    last_cube_color = cube_color;
+    cube_section_cnt++;
+
+    if(turns == 3) {
+      final_cube_color = last_cube_color;
+      final_cube_pos = cube_section_cnt;
+      final_cube_turn = turns;
+    } 
+    if(turns == 4) {
+      if(last_cube_y < 1700) {
+        final_cube_color = last_cube_color;
+        final_cube_pos = cube_section_cnt;
+        final_cube_turn = turns;
+      }
+    }
+    
+    CASE = AVOID_CUBE;
+  } else {
+
+    if(millis() - last_turn_ok > rotate_timeout && (wall_dist[BACK] > 1850 || (wall_dist[LEFT] + wall_dist[RIGHT]) > 1200) && !turn_ok) {
+      turn_ok = 1;
+      last_turn_ok = millis();
+    }
+    pid_error_gyro = ((current_angle) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  }
+  break;
+}
+```
+
+The *AVOID_CUBE* module is responsible for detecting and avoiding any cubes that may be present in the robot's path. It utilizes the LIDAR sensor to determine the cube's position and color, and then it calculates the shortest distance to the cube. The robot then adjusts its trajectory to avoid the cube, and once it has passed it, it goes to the *PASS CUBE* module.
+
+In the *PASS CUBE* module, the robot moves straight until it has passed the cube. Once it has done so, it goes back to the *SECTION* module.
+
+```ino
+case AVOID_CUBE:
+{
+  if (last_cube_color == GREEN && ((wall_dist[side_wall] < goal_distance && direction == 1) || (wall_dist[side_wall] > goal_distance && direction == -1))  || 
+        last_cube_color == RED && ((wall_dist[side_wall] > goal_distance && direction == 1) || (wall_dist[side_wall] < goal_distance && direction == -1)) && 
+          (wall_dist[LEFT] + wall_dist[RIGHT]) > 800) {
+    CASE = PASS_CUBE;
+  } else {
+    pid_error_gyro = ((current_angle + last_cube_color * 55) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  }
+  break;
+}
+
+case PASS_CUBE:
+{
+  if (wall_dist[BACK] > last_cube_y + 200 && (wall_dist[FRONT] + wall_dist[BACK]) < 3400) {
+    last_dist_to_cube = 0;
+    if(final_cube_color == 1 && final_cube_turn % 4 == turns % 4 && turns > 5 && final_cube_pos == cube_section_cnt)
+      CASE = PASS_LAST_CUBE;
+    else
+      CASE = SECTION;
+  } else {
+    pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  }
+  break;
+}
+```
+
+The *ROTATE* module is designed to pivot the robot 90 degrees towards the next section. It employs a PD controller in conjunction with a gyro sensor to execute the rotation. However, if the robot is close to the inside wall, it will perform a 270-degree turn in the opposite direction rather than a 90-degree one. This ensures the robot has ample space to maneuver before approaching the next section, thereby avoiding any cubes.
+
+```ino
+case ROTATE:
+{
+  if (abs((current_angle - direction * 270) - gx) < 5) {
+    current_angle -= direction * 270;
+    last_rotate = millis();
+    CASE = SECTION;
+  } else if ((wall_dist[side_wall] > 500 || wall_dist[FRONT] > 450) && (wall_dist[side_wall] > 450 || wall_dist[FRONT] > 250) && flag == 0) {
+    ang = myacos((wall_dist[FRONT] - 450) / sqrt((wall_dist[FRONT] - 450) * (wall_dist[FRONT] - 450) + (wall_dist[side_wall] - 500) * (wall_dist[side_wall] - 500)));
+
+    pid_error_gyro = ((current_angle - direction * ang) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  } else {
+    flag = 1;
+    pid_error_gyro = ((current_angle - direction * 270) - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  }
+  break;
+}
+```
+
+The *PASS_LAST_CUBE* module is designed to rotate the robot and change its direction after 2 laps, in case the last cube has the color red.
+
+```ino
+case PASS_LAST_CUBE: {
+  if(wall_dist[FRONT] && wall_dist[FRONT] < 500) {
+    current_angle -= 180;
+    direction *= -1;
+    if(side_wall == LEFT)
+      side_wall = RIGHT;
+    else
+      side_wall = LEFT;
+    last_rotate = millis();
+    last_cube_color = 0;
+    last_dist_to_cube = 0;
+    flag = 0;
+    cube_section_cnt = 0;
+    turns++;
+    CASE = SECTION;
+  } else {
+    pid_error_gyro = (current_angle - gx) * kp_gyro + (pid_error_gyro - pid_last_error_gyro) * kd_gyro;
+    pid_last_error_gyro = pid_error_gyro;
+
+    move_servo(pid_error_gyro);
+  }
+  break;
+}
+```
+
+THe *STOP* module is designed to stop the robot after it has completed the course.
+
+```ino
+case STOP:
+  {
+    lidarMotorWrite(0);
+    move_servo(0);
+    motor_start(-10);
+    Serial.println("Stop case");
+    break;
+  }
 ```
 
 <br>
 
-![Robot animation](./images/resources/explosion.gif "Robot animation")
+# Randomizer <a class="anchor" id="randomizer"></a>
+
+To ensure the robot's ability to adapt to any course, we developed a randomizer that generates a random sequence of colors and positions for the cubes. You can find this web application at the following link: https://nerdvana.ro/wro-fe/
+
+<br>
 
 # Resources <a class="anchor" id="resources"></a>
 
 ## 3D Models <a class="anchor" id="3d-models-resources"></a>
-<li> Pixy cam 2.1 - https://grabcad.com/library/cmucam-pixy-2-2
-<li> DC motor - https://grabcad.com/library/12v-dc-motor-6
-<li> Servo motor - https://grabcad.com/library/servomotor-mg996r-4
-<li> Battery - https://grabcad.com/library/2s-7-4v-li-po-battery-1
-<li> Gyro sensor - https://grabcad.com/library/mpu6050-1
-<li> Ultrasonic sensor - https://grabcad.com/library/sensor-ultrassonico-hc-sr04-1
-<li> Display - https://grabcad.com/library/ssd1312-oled-display-0-96-1
-<li> Button - https://grabcad.com/library/button-pcb-12mm-1
+<li> DC Motor - https://grabcad.com/library/12v-dc-motor-350rpm-w-encoder-from-dfrobot-1
+<li> MG996R Servo motor - https://grabcad.com/library/servomotor-mg996r-4
+<li> Sparkfun Motor Driver - https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1
 <li> Teensy 4.1 - https://grabcad.com/library/teensy-4-1-2
-<li> Sparkfun motor driver - https://grabcad.com/library/sparkfun-motor-driver-dual-tb6612fng-1a-1
-<li> Prototype board - https://grabcad.com/library/pcb-board-prototype-3x7cm-1
-<li> Linear voltage regulator - https://grabcad.com/library/linear-voltage-regulators-78xx-1
+<li> RPLIDAR A1 - https://grabcad.com/library/rplidar-a1-holder-1
+<li> Pixycam 2.1 - https://grabcad.com/library/cmucam-pixy-2-2
+<li> LiPo Battery - https://grabcad.com/library/2s-7-4v-li-po-battery-1
+<li> Grove BMI088 Gyroscope - https://grabcad.com/library/mpu6050-1
+<li> Linear Voltage Regulator - https://grabcad.com/library/linear-voltage-regulators-78xx-1
+<li> Prototype Board - https://grabcad.com/library/pcb-board-prototype-3x7cm-1
 
 <br>
 
 ## Images <a class="anchor" id="images-resources"></a>
+<li> DC Motor - https://www.adafruit.com/product/4416
+<li> Sparkfun Motor Driver - https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg
 <li> MG996R Servo motor - https://www.digikey.com/htmldatasheets/production/5014637/0/0/1/media/bg1.jpg
-<li> DC geared motor - https://grabcad.com/library/12v-dc-motor-350rpm-w-encoder-from-dfrobot-1
-<li> Sparkfun motor driver - https://cdn.sparkfun.com//assets/parts/1/2/4/8/2/14450a-01.jpg
 <li> Teensy 4.1 - https://circuitpython.org/assets/images/boards/large/teensy41.jpg
-<li> Vl53l0x lidar - https://media.elektor.com/media/catalog/product/cache/787d235d52214c6d5b6ff19d7070090a/g/r/grove.jpg
-<li> Grove HC-SR04 ultrasonic - https://files.seeedstudio.com/wiki/Grove_Ultrasonic_Ranger/V2.jpg
-<li> Grove BMI088 gyroscope - https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg
-<li> LiPo battery - https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg
-<li> Pixy cam 2.1 - https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg
+<li> RPLIDAR A1 - https://www.waveshare.com/wiki/RPLIDAR_A1
+<li> Pixycam 2.1 - https://pixycam.com/wp-content/uploads/2021/05/pixy2_3_result.jpg
+<li> LiPo Battery - https://www.autorc.ro/16064-large_default/acumulator-lipo-gens-ace-3s-111v-2200mah-20c-mufa-xt60.jpg
+<li> Grove BMI088 Gyroscope - https://files.seeedstudio.com/wiki/Grove-6-Axis_Accelerometer-Gyroscope-BMI088/img/main.jpg
 <li> Linear voltage regulator - https://ro.farnell.com/productimages/standard/en_GB/GE3TO220-40.jpg
-<li> RPLIDAR A1 - https://grabcad.com/library/rplidar-a1-holder-1
+
 
 <br>
 
